@@ -36,17 +36,19 @@ const optionalText = (max: number) =>
     .nullable()
     .transform((v) => (v && v.trim() ? v.trim() : null))
 
+const optionalBool = z.coerce.boolean().optional().default(false)
+
 export const DoctorApplicationSchema = z.object({
   applicantName: z.string().min(1, "이름을 입력해주세요").max(40),
   applicantEmail: z.string().email("올바른 이메일을 입력해주세요"),
   hospital: z.string().min(1, "병원명을 입력해주세요").max(80),
   hospitalPhone: optionalText(40),
   mobilePhone: optionalText(40),
-  hospitalWebsite: optionalText(500),
-  personalWebsite: optionalText(500),
-  blogUrl: optionalText(500),
-  youtubeUrl: optionalText(500),
-  instagramUrl: optionalText(500),
+  hasHospitalWebsite: optionalBool,
+  hasPersonalWebsite: optionalBool,
+  hasBlog: optionalBool,
+  hasYoutube: optionalBool,
+  hasInstagram: optionalBool,
   message: optionalText(2000),
 })
 export type DoctorApplicationInput = z.infer<typeof DoctorApplicationSchema>

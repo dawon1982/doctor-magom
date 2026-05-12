@@ -29,11 +29,11 @@ export async function POST(req: NextRequest) {
       hospital: parsed.data.hospital,
       hospital_phone: parsed.data.hospitalPhone,
       mobile_phone: parsed.data.mobilePhone,
-      hospital_website: parsed.data.hospitalWebsite,
-      personal_website: parsed.data.personalWebsite,
-      blog_url: parsed.data.blogUrl,
-      youtube_url: parsed.data.youtubeUrl,
-      instagram_url: parsed.data.instagramUrl,
+      has_hospital_website: parsed.data.hasHospitalWebsite,
+      has_personal_website: parsed.data.hasPersonalWebsite,
+      has_blog: parsed.data.hasBlog,
+      has_youtube: parsed.data.hasYoutube,
+      has_instagram: parsed.data.hasInstagram,
       message: parsed.data.message,
     })
     .select("id")

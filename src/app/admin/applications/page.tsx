@@ -36,6 +36,11 @@ type ApplicationRow = {
   hospital: string
   hospital_phone: string | null
   mobile_phone: string | null
+  has_hospital_website: boolean
+  has_personal_website: boolean
+  has_blog: boolean
+  has_youtube: boolean
+  has_instagram: boolean
   hospital_website: string | null
   personal_website: string | null
   blog_url: string | null
@@ -47,14 +52,14 @@ type ApplicationRow = {
 }
 
 function ApplicationCard({ app }: { app: ApplicationRow }) {
-  const channels: { label: string; url: string | null }[] = [
-    { label: "병원 홈페이지", url: app.hospital_website },
-    { label: "개인 홈페이지", url: app.personal_website },
-    { label: "블로그", url: app.blog_url },
-    { label: "유튜브", url: app.youtube_url },
-    { label: "인스타그램", url: app.instagram_url },
+  const channels = [
+    { label: "병원 홈페이지", has: app.has_hospital_website, url: app.hospital_website },
+    { label: "개인 홈페이지", has: app.has_personal_website, url: app.personal_website },
+    { label: "블로그", has: app.has_blog, url: app.blog_url },
+    { label: "유튜브", has: app.has_youtube, url: app.youtube_url },
+    { label: "인스타그램", has: app.has_instagram, url: app.instagram_url },
   ]
-  const presentChannels = channels.filter((c) => c.url)
+  const presentChannels = channels.filter((c) => c.has)
 
   return (
     <div className="rounded-xl border border-border bg-card p-5">
@@ -101,18 +106,31 @@ function ApplicationCard({ app }: { app: ApplicationRow }) {
       </div>
 
       {presentChannels.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {presentChannels.map((c) => (
-            <a
-              key={c.label}
-              href={c.url!}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-primary hover:bg-accent transition"
-            >
-              {c.label} ↗
-            </a>
-          ))}
+        <div className="mt-3">
+          <p className="text-xs text-muted-foreground mb-1.5">신청자가 보유한 채널</p>
+          <div className="flex flex-wrap gap-2">
+            {presentChannels.map((c) =>
+              c.url ? (
+                <a
+                  key={c.label}
+                  href={c.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-primary/30 bg-primary/5 px-2.5 py-1 text-xs text-primary hover:bg-primary/10 transition"
+                >
+                  {c.label} ↗
+                </a>
+              ) : (
+                <span
+                  key={c.label}
+                  className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground"
+                  title="URL 미입력 — 운영팀이 확인 후 채워주세요"
+                >
+                  {c.label} · 주소 미입력
+                </span>
+              ),
+            )}
+          </div>
         </div>
       )}
 
