@@ -2,7 +2,6 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { togglePublished } from "@/app/admin/actions"
 
-export const dynamic = "force-dynamic"
 
 export default async function AdminDoctorsPage() {
   const supabase = await createClient()

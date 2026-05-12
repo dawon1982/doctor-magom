@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server"
 import DoctorForm, { type DoctorFormValues } from "@/components/admin/DoctorForm"
 import { updateDoctor } from "@/app/admin/actions"
 
-export const dynamic = "force-dynamic"
 
 export default async function EditDoctorPage({
   params,

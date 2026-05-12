@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import "./globals.css"
 import { Header } from "@/components/layout/Header"
+import { HeaderShell } from "@/components/layout/HeaderShell"
 import { Footer } from "@/components/layout/Footer"
 
 export const metadata: Metadata = {
@@ -27,7 +29,9 @@ export default function RootLayout({
   return (
     <html lang="ko" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
-        <Header />
+        <Suspense fallback={<HeaderShell />}>
+          <Header />
+        </Suspense>
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

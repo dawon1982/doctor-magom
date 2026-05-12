@@ -86,10 +86,10 @@ function staticFallback(): Doctor[] {
   }))
 }
 
-async function fetchAllDoctors(): Promise<Doctor[]> {
-  // Cookieless client — this function lives inside unstable_cache, which
-  // forbids `cookies()`. Doctor data is public anyway; RLS for is_published
-  // is enforced by filtering in the query below.
+async function fetchAllDoctorsImpl(): Promise<Doctor[]> {
+  // Cookieless service-role client — this function is wrapped in
+  // unstable_cache, which forbids `cookies()`. Doctor data is public;
+  // the query filters is_published.
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -185,13 +185,13 @@ async function fetchAllDoctors(): Promise<Doctor[]> {
 }
 
 const getAllDoctorsRaw = unstable_cache(
-  fetchAllDoctors,
+  fetchAllDoctorsImpl,
   ["doctors:all"],
   { tags: [DOCTORS_TAG], revalidate: 3600 },
 )
 
 export async function getAllDoctors(): Promise<Doctor[]> {
-  return (await getAllDoctorsRaw()) as Doctor[]
+  return getAllDoctorsRaw()
 }
 
 export async function getAllDoctorSlugs(): Promise<string[]> {
@@ -265,8 +265,8 @@ export async function getAllArticles(): Promise<ArticleListItem[]> {
 
 // ---------------------------------------------------------------------------
 // Invalidation helpers — call from server actions after mutations.
-// Phase 2 uses path-based revalidation; switch to `updateTag` once
-// cacheComponents is enabled.
+// Phase 2 uses path-based revalidation; will swap to `updateTag` once
+// cacheComponents is enabled in Phase 3 prep.
 // ---------------------------------------------------------------------------
 export function invalidateAllDoctors() {
   revalidatePath("/", "layout")

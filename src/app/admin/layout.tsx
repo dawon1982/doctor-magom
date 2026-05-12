@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { requireRole } from "@/lib/auth/dal"
 
-export const dynamic = "force-dynamic"
 
 const NAV = [
   { href: "/admin", label: "대시보드" },

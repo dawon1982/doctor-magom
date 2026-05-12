@@ -2,7 +2,6 @@ import Link from "next/link"
 import DoctorForm from "@/components/admin/DoctorForm"
 import { createDoctor } from "@/app/admin/actions"
 
-export const dynamic = "force-dynamic"
 
 export default function NewDoctorPage() {
   return (

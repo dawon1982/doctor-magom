@@ -4,7 +4,6 @@ import { requireRole } from "@/lib/auth/dal"
 import DoctorForm, { type DoctorFormValues } from "@/components/admin/DoctorForm"
 import { updateOwnDoctorProfile } from "./actions"
 
-export const dynamic = "force-dynamic"
 
 export default async function DoctorProfilePage() {
   const user = await requireRole(["doctor", "admin"])
