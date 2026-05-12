@@ -32,7 +32,9 @@ export default function RootLayout({
         <Suspense fallback={<HeaderShell />}>
           <Header />
         </Suspense>
-        <main className="flex-1">{children}</main>
+        <main className="flex-1">
+          <Suspense fallback={null}>{children}</Suspense>
+        </main>
         <Footer />
       </body>
     </html>

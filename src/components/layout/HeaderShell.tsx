@@ -1,12 +1,31 @@
-import { HeaderNav } from "./HeaderNav"
+import Link from "next/link"
 
 /**
- * Static Suspense fallback for the session-aware <Header />.
- * Renders the logged-out view (login / signup buttons) so the static
- * shell is fully prerendered. Once cookies resolve server-side, the
- * real <Header /> streams in and replaces this skeleton — the visual
- * delta is just the user menu vs the login/signup buttons.
+ * Fully static Suspense fallback for the session-aware <Header />.
+ *
+ * Cannot use HeaderNav because that component calls usePathname(), which
+ * cacheComponents treats as request-time data and disallows in a fallback.
+ * Once <Header /> resolves the session it streams in and replaces this
+ * skeleton with the full nav + auth slot.
  */
 export function HeaderShell() {
-  return <HeaderNav user={null} />
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur-sm">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="flex h-16 items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 group">
+            <span className="text-2xl">🐻</span>
+            <div className="flex flex-col leading-tight">
+              <span className="text-sm font-bold tracking-tight text-foreground">
+                닥터마음곰
+              </span>
+              <span className="text-[10px] text-muted-foreground font-medium">
+                Dr. Maum-gom
+              </span>
+            </div>
+          </Link>
+        </div>
+      </div>
+    </header>
+  )
 }

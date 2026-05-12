@@ -1,5 +1,5 @@
 import "server-only"
-import { unstable_cache, revalidatePath } from "next/cache"
+import { cacheLife, cacheTag, updateTag } from "next/cache"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { doctors as staticDoctors } from "./doctors"
 
@@ -86,10 +86,12 @@ function staticFallback(): Doctor[] {
   }))
 }
 
-async function fetchAllDoctorsImpl(): Promise<Doctor[]> {
-  // Cookieless service-role client — this function is wrapped in
-  // unstable_cache, which forbids `cookies()`. Doctor data is public;
-  // the query filters is_published.
+async function getAllDoctorsRaw(): Promise<Doctor[]> {
+  "use cache"
+  cacheLife("hours")
+  cacheTag(DOCTORS_TAG)
+  // Cookieless service-role client — `use cache` scopes forbid cookies().
+  // Doctor data is public; the query filters is_published.
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -184,12 +186,6 @@ async function fetchAllDoctorsImpl(): Promise<Doctor[]> {
   })
 }
 
-const getAllDoctorsRaw = unstable_cache(
-  fetchAllDoctorsImpl,
-  ["doctors:all"],
-  { tags: [DOCTORS_TAG], revalidate: 3600 },
-)
-
 export async function getAllDoctors(): Promise<Doctor[]> {
   return getAllDoctorsRaw()
 }
@@ -265,16 +261,15 @@ export async function getAllArticles(): Promise<ArticleListItem[]> {
 
 // ---------------------------------------------------------------------------
 // Invalidation helpers — call from server actions after mutations.
-// Phase 2 uses path-based revalidation; will swap to `updateTag` once
-// cacheComponents is enabled in Phase 3 prep.
+// `updateTag` immediately expires matching cache entries so subsequent
+// reads (within the same action) see fresh data — read-your-own-writes.
 // ---------------------------------------------------------------------------
 export function invalidateAllDoctors() {
-  revalidatePath("/", "layout")
-  revalidatePath("/doctors")
-  revalidatePath("/videos")
-  revalidatePath("/articles")
+  updateTag(DOCTORS_TAG)
+  updateTag(VIDEOS_TAG)
+  updateTag(ARTICLES_TAG)
 }
 export function invalidateDoctor(slug: string) {
   invalidateAllDoctors()
-  revalidatePath(`/doctors/${slug}`)
+  updateTag(doctorTag(slug))
 }
