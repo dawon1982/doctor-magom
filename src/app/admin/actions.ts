@@ -141,41 +141,73 @@ export async function approveApplication(formData: FormData) {
 
   const { data: app, error: fetchErr } = await supabase
     .from("doctor_applications")
-    .select("applicant_email, applicant_name")
+    .select("applicant_email, applicant_name, hospital")
     .eq("id", id)
     .single()
   if (fetchErr || !app) return
 
-  // Send invite via service-role
   const admin = createAdminClient()
+
+  // 1) Create a placeholder doctor row (admin / AI fills the rest later).
+  //    Random slug avoids unique-constraint collisions; admin can rename in
+  //    /admin/doctors/[id] before is_published is flipped on.
+  const randomSlug = `dr-${Math.random().toString(36).slice(2, 8)}`
+  const { data: doctor, error: doctorErr } = await admin
+    .from("doctors")
+    .insert({
+      slug: randomSlug,
+      name: app.applicant_name,
+      hospital: app.hospital,
+      location: "",
+      district: "",
+      region: "서울",
+      specialties: [],
+      keywords: [],
+      target_patients: [],
+      treatments: [],
+      bio: "",
+      hours: [],
+      review_keywords: [],
+      photo_placeholder_color: "#D4895A",
+      is_published: false,
+    })
+    .select("id, slug")
+    .single()
+  if (doctorErr) {
+    console.error("[approveApplication] failed to insert doctor row:", doctorErr)
+    return
+  }
+
+  // 2) Send Supabase invite to the applicant.
   const h = await headers()
   const proto = h.get("x-forwarded-proto") ?? "https"
   const host = h.get("host") ?? "doctor-magom.vercel.app"
   const redirectTo = `${proto}://${host}/auth/callback?next=/doctor/profile`
 
-  const { data: invited } = await admin.auth.admin.inviteUserByEmail(
-    app.applicant_email,
-    { redirectTo },
-  )
+  await admin.auth.admin.inviteUserByEmail(app.applicant_email, { redirectTo })
 
+  // 3) Mark the application approved + remember which doctor row was created.
   await supabase
     .from("doctor_applications")
     .update({
       status: "approved",
+      approved_doctor_id: doctor.id,
       reviewed_by: user?.id ?? null,
       reviewed_at: new Date().toISOString(),
     })
     .eq("id", id)
 
+  // 4) Send the approval email (dry-run until magom.io is wired).
   await sendEmail({
     template: "applicationApproved",
     to: app.applicant_email,
     data: { name: app.applicant_name, inviteUrl: redirectTo },
     relatedId: id,
   })
-  void invited
 
+  invalidateAllDoctors()
   revalidatePath("/admin/applications")
+  revalidatePath("/admin/doctors")
 }
 
 export async function rejectApplication(formData: FormData) {
