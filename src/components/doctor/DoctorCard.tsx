@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { MapPin, PlayCircle, FileText } from "lucide-react"
-import type { Doctor } from "@/lib/data/doctors"
+import type { Doctor } from "@/lib/data/doctors-db"
 
 type Props = {
   doctor: Doctor
@@ -90,19 +90,19 @@ export function DoctorCard({ doctor, compact = false }: Props) {
 
         {/* 콘텐츠 아이콘 */}
         <div className="px-5 pb-4 flex items-center gap-3">
-          {doctor.videos.length > 0 && (
+          {(doctor.videos ?? []).length > 0 && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <PlayCircle size={13} />
-              <span>영상 {doctor.videos.length}개</span>
+              <span>영상 {(doctor.videos ?? []).length}개</span>
             </div>
           )}
-          {doctor.articles.length > 0 && (
+          {(doctor.articles ?? []).length > 0 && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <FileText size={13} />
-              <span>기고글 {doctor.articles.length}개</span>
+              <span>기고글 {(doctor.articles ?? []).length}개</span>
             </div>
           )}
-          {doctor.videos.length === 0 && doctor.articles.length === 0 && (
+          {(doctor.videos ?? []).length === 0 && (doctor.articles ?? []).length === 0 && (
             <span className="text-xs text-muted-foreground/50">프로필 보기 →</span>
           )}
           <div className="ml-auto">

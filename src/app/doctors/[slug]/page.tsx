@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { MapPin, Clock, Phone, Globe, PlayCircle, FileText, ChevronLeft, Star } from "lucide-react"
-import { getDoctorBySlug, doctors } from "@/lib/data/doctors"
+import {
+  getDoctorBySlug,
+  getAllDoctorSlugs,
+} from "@/lib/data/doctors-db"
 import type { Metadata } from "next"
 
 type Props = {
@@ -9,12 +12,13 @@ type Props = {
 }
 
 export async function generateStaticParams() {
-  return doctors.map((d) => ({ slug: d.slug }))
+  const slugs = await getAllDoctorSlugs()
+  return slugs.map((slug) => ({ slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const doctor = getDoctorBySlug(slug)
+  const doctor = await getDoctorBySlug(slug)
   if (!doctor) return {}
   return {
     title: `${doctor.name} | ${doctor.hospital}`,
@@ -31,7 +35,7 @@ function getYouTubeId(url: string) {
 
 export default async function DoctorDetailPage({ params }: Props) {
   const { slug } = await params
-  const doctor = getDoctorBySlug(slug)
+  const doctor = await getDoctorBySlug(slug)
   if (!doctor) notFound()
 
   return (

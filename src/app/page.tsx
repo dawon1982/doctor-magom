@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { ArrowRight, Heart, Video, FileText, Search, Shield, Star } from "lucide-react"
-import { doctors, videos, articles } from "@/lib/data/doctors"
+import { getAllDoctors, getAllVideos, getAllArticles } from "@/lib/data/doctors-db"
 import { DoctorCard } from "@/components/doctor/DoctorCard"
 
 const prejudiceItems = [
@@ -25,7 +25,12 @@ function getYouTubeId(url: string) {
   return match ? match[1] : null
 }
 
-export default function Home() {
+export default async function Home() {
+  const [doctors, videos, articles] = await Promise.all([
+    getAllDoctors(),
+    getAllVideos(),
+    getAllArticles(),
+  ])
   const featuredDoctors = doctors.slice(0, 6)
   const featuredVideos = videos.slice(0, 3)
   const featuredArticles = articles.slice(0, 3)
@@ -318,14 +323,12 @@ export default function Home() {
             >
               선생님 찾기 <ArrowRight size={17} />
             </Link>
-            <a
-              href="https://whattime.co.kr/magom/meeting"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/apply"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-8 py-4 text-base font-medium hover:bg-background transition-colors"
             >
               <Star size={15} className="text-primary" /> 의사 입점 문의
-            </a>
+            </Link>
           </div>
         </div>
       </section>

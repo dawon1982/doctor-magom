@@ -1,6 +1,5 @@
-import Link from "next/link"
 import { FileText, ExternalLink } from "lucide-react"
-import { articles, doctors } from "@/lib/data/doctors"
+import { getAllArticles, getAllDoctors } from "@/lib/data/doctors-db"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -8,7 +7,11 @@ export const metadata: Metadata = {
   description: "정신건강의학과 선생님들이 직접 쓴 기고글을 읽어보세요",
 }
 
-export default function ArticlesPage() {
+export default async function ArticlesPage() {
+  const [articles, doctors] = await Promise.all([
+    getAllArticles(),
+    getAllDoctors(),
+  ])
   return (
     <div className="min-h-screen bg-background">
       {/* 헤더 */}

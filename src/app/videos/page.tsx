@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Video } from "lucide-react"
-import { videos, doctors } from "@/lib/data/doctors"
+import { getAllVideos, getAllDoctors } from "@/lib/data/doctors-db"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -15,7 +15,8 @@ function getYouTubeId(url: string) {
   return match ? match[1] : null
 }
 
-export default function VideosPage() {
+export default async function VideosPage() {
+  const [videos, doctors] = await Promise.all([getAllVideos(), getAllDoctors()])
   return (
     <div className="min-h-screen bg-background">
       {/* 헤더 */}
