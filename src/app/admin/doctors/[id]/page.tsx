@@ -57,7 +57,12 @@ export default async function EditDoctorPage({
           ← 목록
         </Link>
       </div>
-      <DoctorForm initial={initial} action={boundAction} submitLabel="저장" />
+      <DoctorForm
+        initial={initial}
+        action={boundAction}
+        submitLabel="저장"
+        doctorId={id}
+      />
     </div>
   )
 }
