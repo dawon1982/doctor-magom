@@ -1,16 +1,42 @@
 /**
  * Seed Supabase from the static Phase 1 dataset.
  *
- *   pnpm dlx tsx --env-file=.env.local scripts/seed-doctors.ts
- *   # or
- *   npx tsx --env-file=.env.local scripts/seed-doctors.ts
+ *   npx tsx scripts/seed-doctors.ts
  *
- * Idempotent: upserts on doctors.slug, then replaces each doctor's
- * videos/articles. Re-run any time the static array changes (or skip once
- * the static file is deleted).
+ * Reads .env.local relative to the repo root. Idempotent: upserts on
+ * doctors.slug, then replaces each doctor's videos/articles.
  */
+import { readFileSync } from "node:fs"
+import { resolve } from "node:path"
 import { createClient } from "@supabase/supabase-js"
 import { doctors as staticDoctors } from "../src/lib/data/doctors"
+
+// Minimal .env.local loader so we don't add a dotenv dep.
+function loadEnv(file: string) {
+  let count = 0
+  const path = resolve(process.cwd(), file)
+  try {
+    const raw = readFileSync(path, "utf8")
+    for (const line of raw.split("\n")) {
+      const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*)\s*$/)
+      if (!m) continue
+      const key = m[1]
+      let val = m[2].replace(/\r$/, "")
+      if (
+        (val.startsWith('"') && val.endsWith('"')) ||
+        (val.startsWith("'") && val.endsWith("'"))
+      ) {
+        val = val.slice(1, -1)
+      }
+      process.env[key] = val
+      count++
+    }
+    console.log(`(env) loaded ${count} keys from ${path}`)
+  } catch (err) {
+    console.warn(`(env) couldn't read ${path}:`, err)
+  }
+}
+loadEnv(".env.local")
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY

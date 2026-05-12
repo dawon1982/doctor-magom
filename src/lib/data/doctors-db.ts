@@ -1,6 +1,6 @@
 import "server-only"
 import { unstable_cache, revalidatePath } from "next/cache"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { doctors as staticDoctors } from "./doctors"
 
 // Re-export the Phase 1 type names so consumers don't need to change.
@@ -87,10 +87,16 @@ function staticFallback(): Doctor[] {
 }
 
 async function fetchAllDoctors(): Promise<Doctor[]> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  // Cookieless client — this function lives inside unstable_cache, which
+  // forbids `cookies()`. Doctor data is public anyway; RLS for is_published
+  // is enforced by filtering in the query below.
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
     return staticFallback()
   }
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from("doctors")
     .select(
@@ -189,18 +195,28 @@ export async function getAllDoctors(): Promise<Doctor[]> {
 }
 
 export async function getAllDoctorSlugs(): Promise<string[]> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  // Called from generateStaticParams at build time — must NOT use cookies().
+  // Use the admin (service-role) client which is cookieless. The slug list
+  // is public information regardless of role.
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
     return staticDoctors.map((d) => d.slug)
   }
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from("doctors")
-    .select("slug")
-    .eq("is_published", true)
-  if (error || !data || data.length === 0) {
+  try {
+    const supabase = createAdminClient()
+    const { data, error } = await supabase
+      .from("doctors")
+      .select("slug")
+      .eq("is_published", true)
+    if (error || !data || data.length === 0) {
+      return staticDoctors.map((d) => d.slug)
+    }
+    return data.map((d) => d.slug)
+  } catch {
     return staticDoctors.map((d) => d.slug)
   }
-  return data.map((d) => d.slug)
 }
 
 export async function getDoctorBySlug(slug: string): Promise<Doctor | undefined> {
