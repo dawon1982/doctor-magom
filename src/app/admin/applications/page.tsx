@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import {
   approveApplication,
   rejectApplication,
+  linkApplicationToProfile,
 } from "@/app/admin/actions"
 
 
@@ -12,13 +14,60 @@ export default async function AdminApplicationsPage() {
     .select("*")
     .order("created_at", { ascending: false })
 
+  // For approved applications, figure out whether the invitee has signed up
+  // and whether their profile is already linked to the doctor row.
+  const admin = createAdminClient()
+  const approvedDoctorIds = (apps ?? [])
+    .filter((a) => a.status === "approved" && a.approved_doctor_id)
+    .map((a) => a.approved_doctor_id as string)
+
+  const { data: linkedProfiles } =
+    approvedDoctorIds.length > 0
+      ? await admin
+          .from("profiles")
+          .select("doctor_id, role, display_name")
+          .in("doctor_id", approvedDoctorIds)
+      : { data: [] }
+  const linkedDoctorIds = new Set(
+    (linkedProfiles ?? [])
+      .filter((p) => p.role === "doctor")
+      .map((p) => p.doctor_id),
+  )
+
+  // Email → "did they sign up?" set. Listing once is fine while user count
+  // is small; switch to a per-email lookup once we cross a few hundred.
+  let signedUpEmails = new Set<string>()
+  if ((apps ?? []).some((a) => a.status === "approved")) {
+    const { data: usersList } = await admin.auth.admin.listUsers({
+      perPage: 200,
+    })
+    signedUpEmails = new Set(
+      (usersList?.users ?? [])
+        .map((u) => u.email?.toLowerCase())
+        .filter((v): v is string => !!v),
+    )
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">입점 신청</h1>
       <div className="space-y-3">
-        {(apps ?? []).map((a) => (
-          <ApplicationCard key={a.id} app={a} />
-        ))}
+        {(apps ?? []).map((a) => {
+          const linked = a.approved_doctor_id
+            ? linkedDoctorIds.has(a.approved_doctor_id)
+            : false
+          const signedUp = signedUpEmails.has(
+            (a.applicant_email ?? "").toLowerCase(),
+          )
+          return (
+            <ApplicationCard
+              key={a.id}
+              app={a}
+              linked={linked}
+              signedUp={signedUp}
+            />
+          )
+        })}
         {!apps?.length && (
           <div className="rounded-xl border border-border bg-card px-4 py-12 text-center text-muted-foreground">
             접수된 신청이 없어요.
@@ -48,10 +97,19 @@ type ApplicationRow = {
   instagram_url: string | null
   message: string | null
   status: string
+  approved_doctor_id: string | null
   created_at: string
 }
 
-function ApplicationCard({ app }: { app: ApplicationRow }) {
+function ApplicationCard({
+  app,
+  linked,
+  signedUp,
+}: {
+  app: ApplicationRow
+  linked: boolean
+  signedUp: boolean
+}) {
   const channels = [
     { label: "병원 홈페이지", has: app.has_hospital_website, url: app.hospital_website },
     { label: "개인 홈페이지", has: app.has_personal_website, url: app.personal_website },
@@ -101,6 +159,34 @@ function ApplicationCard({ app }: { app: ApplicationRow }) {
                 거절
               </button>
             </form>
+          </div>
+        )}
+
+        {app.status === "approved" && app.approved_doctor_id && (
+          <div className="flex items-center gap-2 shrink-0">
+            {linked ? (
+              <span className="rounded-md bg-green-100 text-green-800 px-2.5 py-1 text-xs font-medium">
+                ✓ 프로필 연결 완료
+              </span>
+            ) : signedUp ? (
+              <form action={linkApplicationToProfile}>
+                <input type="hidden" name="id" value={app.id} />
+                <button
+                  type="submit"
+                  className="rounded-md bg-orange-500 text-white px-2.5 py-1 text-xs font-medium"
+                  title="이 신청자의 가입 프로필을 doctor row에 연결"
+                >
+                  프로필 연결
+                </button>
+              </form>
+            ) : (
+              <span
+                className="rounded-md bg-gray-100 text-gray-600 px-2.5 py-1 text-xs"
+                title="신청자가 invite 링크로 아직 가입하지 않았어요"
+              >
+                가입 대기 중
+              </span>
+            )}
           </div>
         )}
       </div>

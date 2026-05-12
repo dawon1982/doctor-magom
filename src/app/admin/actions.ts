@@ -226,7 +226,7 @@ export async function rejectApplication(formData: FormData) {
 }
 
 export async function linkDoctorToProfile(formData: FormData) {
-  // Helper used after a doctor accepts their invite — admin sets profile.doctor_id.
+  // Manual fallback — admin supplies profileId + doctorId directly.
   const profileId = String(formData.get("profileId"))
   const doctorId = String(formData.get("doctorId"))
 
@@ -236,5 +236,44 @@ export async function linkDoctorToProfile(formData: FormData) {
     .update({ role: "doctor", doctor_id: doctorId })
     .eq("id", profileId)
 
+  revalidatePath("/admin/doctors")
+}
+
+/**
+ * Resolve an approved application → linked profile.
+ *
+ * Looks up the auth.users row whose email matches the application's
+ * applicant_email, then promotes that profile to role='doctor' and
+ * connects it to the doctor row created at approval time.
+ *
+ * Silent no-op if the applicant has not signed up yet (admin can retry
+ * later) or if the application has no approved_doctor_id.
+ */
+export async function linkApplicationToProfile(formData: FormData) {
+  const appId = String(formData.get("id"))
+
+  const supabase = await createClient()
+  const { data: app } = await supabase
+    .from("doctor_applications")
+    .select("approved_doctor_id, applicant_email")
+    .eq("id", appId)
+    .single()
+  if (!app?.approved_doctor_id || !app.applicant_email) return
+
+  const admin = createAdminClient()
+  // listUsers has no email filter; we have very few users in Phase 2 so
+  // a single page is fine. Bump perPage when this grows.
+  const { data: usersList } = await admin.auth.admin.listUsers({ perPage: 200 })
+  const user = usersList?.users.find(
+    (u) => u.email?.toLowerCase() === app.applicant_email.toLowerCase(),
+  )
+  if (!user) return
+
+  await admin
+    .from("profiles")
+    .update({ role: "doctor", doctor_id: app.approved_doctor_id })
+    .eq("id", user.id)
+
+  revalidatePath("/admin/applications")
   revalidatePath("/admin/doctors")
 }
