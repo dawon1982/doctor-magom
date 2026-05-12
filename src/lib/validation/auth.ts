@@ -28,12 +28,26 @@ export const PatientCrmSchema = z.object({
 })
 export type PatientCrmInput = z.infer<typeof PatientCrmSchema>
 
+const optionalText = (max: number) =>
+  z
+    .string()
+    .max(max)
+    .optional()
+    .nullable()
+    .transform((v) => (v && v.trim() ? v.trim() : null))
+
 export const DoctorApplicationSchema = z.object({
   applicantName: z.string().min(1, "이름을 입력해주세요").max(40),
   applicantEmail: z.string().email("올바른 이메일을 입력해주세요"),
   hospital: z.string().min(1, "병원명을 입력해주세요").max(80),
-  phone: z.string().max(40).optional().nullable(),
-  message: z.string().max(2000).optional().nullable(),
+  hospitalPhone: optionalText(40),
+  mobilePhone: optionalText(40),
+  hospitalWebsite: optionalText(500),
+  personalWebsite: optionalText(500),
+  blogUrl: optionalText(500),
+  youtubeUrl: optionalText(500),
+  instagramUrl: optionalText(500),
+  message: optionalText(2000),
 })
 export type DoctorApplicationInput = z.infer<typeof DoctorApplicationSchema>
 

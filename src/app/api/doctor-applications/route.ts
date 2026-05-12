@@ -27,8 +27,14 @@ export async function POST(req: NextRequest) {
       applicant_email: parsed.data.applicantEmail,
       applicant_name: parsed.data.applicantName,
       hospital: parsed.data.hospital,
-      phone: parsed.data.phone ?? null,
-      message: parsed.data.message ?? null,
+      hospital_phone: parsed.data.hospitalPhone,
+      mobile_phone: parsed.data.mobilePhone,
+      hospital_website: parsed.data.hospitalWebsite,
+      personal_website: parsed.data.personalWebsite,
+      blog_url: parsed.data.blogUrl,
+      youtube_url: parsed.data.youtubeUrl,
+      instagram_url: parsed.data.instagramUrl,
+      message: parsed.data.message,
     })
     .select("id")
     .single()

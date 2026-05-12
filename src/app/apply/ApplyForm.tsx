@@ -13,15 +13,22 @@ export default function ApplyForm() {
     setError(null)
 
     const fd = new FormData(e.currentTarget)
+    const body = {
+      applicantName: fd.get("applicantName"),
+      applicantEmail: fd.get("applicantEmail"),
+      hospital: fd.get("hospital"),
+      hospitalPhone: fd.get("hospitalPhone"),
+      mobilePhone: fd.get("mobilePhone"),
+      hospitalWebsite: fd.get("hospitalWebsite"),
+      personalWebsite: fd.get("personalWebsite"),
+      blogUrl: fd.get("blogUrl"),
+      youtubeUrl: fd.get("youtubeUrl"),
+      instagramUrl: fd.get("instagramUrl"),
+      message: fd.get("message"),
+    }
     const res = await fetch("/api/doctor-applications", {
       method: "POST",
-      body: JSON.stringify({
-        applicantName: fd.get("applicantName"),
-        applicantEmail: fd.get("applicantEmail"),
-        hospital: fd.get("hospital"),
-        phone: fd.get("phone"),
-        message: fd.get("message"),
-      }),
+      body: JSON.stringify(body),
       headers: { "Content-Type": "application/json" },
     })
     const json = await res.json().catch(() => ({}))
@@ -47,16 +54,62 @@ export default function ApplyForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <SectionTitle>기본 정보</SectionTitle>
       <Field name="applicantName" label="이름" required />
       <Field name="applicantEmail" label="이메일" type="email" required />
       <Field name="hospital" label="병원명" required />
-      <Field name="phone" label="연락처 (선택)" />
+
+      <SectionTitle>연락처</SectionTitle>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Field
+          name="hospitalPhone"
+          label="연락처 (병원)"
+          type="tel"
+          placeholder="02-1234-5678"
+        />
+        <Field
+          name="mobilePhone"
+          label="연락처 (휴대폰)"
+          type="tel"
+          placeholder="010-1234-5678"
+        />
+      </div>
+
+      <SectionTitle>채널·자료 (있는 것만 입력)</SectionTitle>
+      <Field
+        name="hospitalWebsite"
+        label="병원 홈페이지"
+        type="url"
+        placeholder="https://"
+      />
+      <Field
+        name="personalWebsite"
+        label="개인 홈페이지"
+        type="url"
+        placeholder="https://"
+      />
+      <Field name="blogUrl" label="블로그" type="url" placeholder="https://blog.naver.com/..." />
+      <Field
+        name="youtubeUrl"
+        label="유튜브"
+        type="url"
+        placeholder="https://youtube.com/@..."
+      />
+      <Field
+        name="instagramUrl"
+        label="인스타그램"
+        type="url"
+        placeholder="https://instagram.com/..."
+      />
+
+      <SectionTitle>자기소개</SectionTitle>
       <Textarea
         name="message"
-        label="자기소개·진료 스타일·보유 자료 등"
+        label="진료 스타일·전문분야·하고 싶은 말 등"
         rows={5}
       />
+
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"
@@ -66,6 +119,14 @@ export default function ApplyForm() {
         {pending ? "전송 중…" : "신청하기"}
       </button>
     </form>
+  )
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground pt-2">
+      {children}
+    </p>
   )
 }
 
