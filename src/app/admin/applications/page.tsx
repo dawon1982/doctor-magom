@@ -5,6 +5,7 @@ import {
   rejectApplication,
   linkApplicationToProfile,
 } from "@/app/admin/actions"
+import { SubmitButton } from "@/components/ui/SubmitButton"
 
 
 export default async function AdminApplicationsPage() {
@@ -143,21 +144,21 @@ function ApplicationCard({
           <div className="flex gap-2 shrink-0">
             <form action={approveApplication}>
               <input type="hidden" name="id" value={app.id} />
-              <button
-                type="submit"
+              <SubmitButton
                 className="rounded-md bg-green-600 text-white px-2.5 py-1 text-xs"
+                pendingLabel="승인 중…"
               >
                 승인
-              </button>
+              </SubmitButton>
             </form>
             <form action={rejectApplication}>
               <input type="hidden" name="id" value={app.id} />
-              <button
-                type="submit"
+              <SubmitButton
                 className="rounded-md bg-gray-200 text-gray-700 px-2.5 py-1 text-xs"
+                pendingLabel="거절 중…"
               >
                 거절
-              </button>
+              </SubmitButton>
             </form>
           </div>
         )}
@@ -171,13 +172,13 @@ function ApplicationCard({
             ) : signedUp ? (
               <form action={linkApplicationToProfile}>
                 <input type="hidden" name="id" value={app.id} />
-                <button
-                  type="submit"
+                <SubmitButton
                   className="rounded-md bg-orange-500 text-white px-2.5 py-1 text-xs font-medium"
                   title="이 신청자의 가입 프로필을 doctor row에 연결"
+                  pendingLabel="연결 중…"
                 >
                   프로필 연결
-                </button>
+                </SubmitButton>
               </form>
             ) : (
               <span

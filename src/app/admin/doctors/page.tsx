@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { togglePublished } from "@/app/admin/actions"
+import { SubmitButton } from "@/components/ui/SubmitButton"
 
 
 export default async function AdminDoctorsPage() {
@@ -51,16 +52,16 @@ export default async function AdminDoctorsPage() {
                       name="next"
                       value={d.is_published ? "false" : "true"}
                     />
-                    <button
-                      type="submit"
+                    <SubmitButton
                       className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         d.is_published
                           ? "bg-green-100 text-green-800"
                           : "bg-gray-100 text-gray-600"
                       }`}
+                      pendingLabel="…"
                     >
                       {d.is_published ? "공개" : "숨김"}
-                    </button>
+                    </SubmitButton>
                   </form>
                 </td>
                 <td className="px-4 py-3 text-right">
