@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { requireRole } from "@/lib/auth/dal"
+import { requireDoctorAccess } from "@/lib/auth/dal"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { resolveChannelId } from "@/lib/youtube/channel-id"
 import { fetchLatestVideos } from "@/lib/youtube/fetch-videos"
@@ -21,7 +21,7 @@ export async function fetchYoutubeVideos(
   doctorId: string,
   channelUrl: string,
 ): Promise<YoutubeFetchResult> {
-  await requireRole("admin")
+  await requireDoctorAccess(doctorId)
 
   if (!channelUrl?.trim()) {
     return { ok: false, error: "유튜브 채널 URL을 입력해주세요." }

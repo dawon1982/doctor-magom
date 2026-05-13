@@ -2,6 +2,10 @@ import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { requireRole } from "@/lib/auth/dal"
 import DoctorForm, { type DoctorFormValues } from "@/components/admin/DoctorForm"
+import DoctorContentManager, {
+  type ContentVideo,
+  type ContentArticle,
+} from "@/components/admin/DoctorContentManager"
 import { updateOwnDoctorProfile } from "./actions"
 
 
@@ -25,6 +29,33 @@ export default async function DoctorProfilePage() {
     .eq("id", user.doctorId)
     .single()
   if (error || !data) notFound()
+
+  const { data: videoRows } = await supabase
+    .from("doctor_videos")
+    .select("id, url, title, date, sort_order")
+    .eq("doctor_id", user.doctorId)
+    .order("sort_order", { ascending: true })
+  const { data: articleRows } = await supabase
+    .from("doctor_articles")
+    .select("id, url, title, date, platform, sort_order")
+    .eq("doctor_id", user.doctorId)
+    .order("sort_order", { ascending: true })
+
+  const videos: ContentVideo[] = (videoRows ?? []).map((v) => ({
+    id: v.id as string,
+    url: v.url as string,
+    title: v.title as string,
+    date: (v.date as string | null) ?? null,
+  }))
+  const articles: ContentArticle[] = (articleRows ?? []).map((a) => ({
+    id: a.id as string,
+    url: a.url as string,
+    title: a.title as string,
+    date: (a.date as string | null) ?? null,
+    platform: ((a.platform as string) === "naver" ? "naver" : "other") as
+      | "naver"
+      | "other",
+  }))
 
   const initial: DoctorFormValues = {
     slug: data.slug,
@@ -60,6 +91,12 @@ export default async function DoctorProfilePage() {
         action={updateOwnDoctorProfile}
         submitLabel="저장"
         slugEditable={false}
+        doctorId={user.doctorId}
+      />
+      <DoctorContentManager
+        doctorId={user.doctorId}
+        initialVideos={videos}
+        initialArticles={articles}
       />
     </div>
   )

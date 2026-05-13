@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { requireRole } from "@/lib/auth/dal"
+import { requireDoctorAccess } from "@/lib/auth/dal"
 import { fillDoctorFromUrl, type FillResult } from "@/lib/ai/doctor-fill"
 
 /**
@@ -16,7 +16,7 @@ export async function fillDoctorAi(
   doctorId: string,
   url: string,
 ): Promise<FillResult> {
-  await requireRole("admin")
+  await requireDoctorAccess(doctorId)
 
   if (!url || !url.trim()) {
     return { ok: false, error: "URL을 입력해주세요." }

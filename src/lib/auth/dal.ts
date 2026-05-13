@@ -67,3 +67,18 @@ export async function requireRole(role: Role | Role[]): Promise<SessionUser> {
   }
   return user
 }
+
+/**
+ * Allow access to per-doctor admin actions either when the caller is an
+ * admin, or when the caller is the doctor that owns this profile. Used by
+ * AI fill / YouTube collect / video & article CRUD so doctors can manage
+ * their own data without giving them site-wide admin rights.
+ */
+export async function requireDoctorAccess(
+  doctorId: string,
+): Promise<SessionUser> {
+  const user = await requireUser()
+  if (user.role === "admin") return user
+  if (user.role === "doctor" && user.doctorId === doctorId) return user
+  redirect("/")
+}
