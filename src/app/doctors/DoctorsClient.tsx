@@ -1,9 +1,12 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Search, SlidersHorizontal, X } from "lucide-react"
+import { Search, SlidersHorizontal, X, ArrowRight } from "lucide-react"
+import Link from "next/link"
 import { DoctorCard } from "@/components/doctor/DoctorCard"
 import type { Doctor } from "@/lib/data/doctors-db"
+
+const MAX_COMPARE = 3
 
 const styleKeywords = [
   "지지적인", "공감적인", "명쾌한", "격려하는", "현실적 조언", "분석적인", "경청하는", "따뜻한",
@@ -26,6 +29,15 @@ export default function DoctorsClient({
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(null)
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null)
   const [showFilters, setShowFilters] = useState(false)
+  const [compareSlugs, setCompareSlugs] = useState<string[]>([])
+
+  function toggleCompare(slug: string) {
+    setCompareSlugs((prev) => {
+      if (prev.includes(slug)) return prev.filter((s) => s !== slug)
+      if (prev.length >= MAX_COMPARE) return prev
+      return [...prev, slug]
+    })
+  }
 
   const filtered = useMemo(() => {
     return doctors.filter((d) => {
@@ -206,10 +218,43 @@ export default function DoctorsClient({
         </p>
 
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((doctor) => (
-              <DoctorCard key={doctor.id} doctor={doctor} />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-24">
+            {filtered.map((doctor) => {
+              const checked = compareSlugs.includes(doctor.slug)
+              const reachedMax = compareSlugs.length >= MAX_COMPARE && !checked
+              return (
+                <div key={doctor.id} className="relative">
+                  <DoctorCard doctor={doctor} />
+                  <button
+                    type="button"
+                    disabled={reachedMax}
+                    onClick={() => toggleCompare(doctor.slug)}
+                    className={`absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-background/95 backdrop-blur-sm border px-2.5 py-1 text-[11px] font-medium shadow-sm transition cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed ${
+                      checked
+                        ? "border-primary text-primary"
+                        : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                    }`}
+                    aria-pressed={checked}
+                  >
+                    <span
+                      className={`inline-block h-3 w-3 rounded-sm border ${
+                        checked
+                          ? "bg-primary border-primary text-primary-foreground flex items-center justify-center"
+                          : "border-muted-foreground/40"
+                      }`}
+                      aria-hidden
+                    >
+                      {checked && (
+                        <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 text-primary-foreground" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="2.5 6.5 5 9 9.5 3.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </span>
+                    비교
+                  </button>
+                </div>
+              )
+            })}
           </div>
         ) : (
           <div className="text-center py-20">
@@ -225,6 +270,53 @@ export default function DoctorsClient({
           </div>
         )}
       </div>
+
+      {compareSlugs.length > 0 && (
+        <div className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur-md shadow-lg">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground mb-0.5">
+                비교 선택 ({compareSlugs.length}/{MAX_COMPARE})
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {compareSlugs.map((slug) => {
+                  const d = doctors.find((x) => x.slug === slug)
+                  if (!d) return null
+                  return (
+                    <span
+                      key={slug}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+                    >
+                      {d.name}
+                      <button
+                        type="button"
+                        onClick={() => toggleCompare(slug)}
+                        className="hover:bg-primary/20 rounded-full p-0.5"
+                        aria-label="제거"
+                      >
+                        <X size={11} />
+                      </button>
+                    </span>
+                  )
+                })}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setCompareSlugs([])}
+              className="text-xs text-muted-foreground hover:text-foreground shrink-0"
+            >
+              초기화
+            </button>
+            <Link
+              href={`/compare?ids=${compareSlugs.join(",")}`}
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
+            >
+              비교하기 <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
