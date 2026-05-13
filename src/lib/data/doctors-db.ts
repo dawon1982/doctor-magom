@@ -33,6 +33,7 @@ export type Doctor = {
   kakaoUrl?: string
   websiteUrl?: string
   photoPlaceholderColor: string
+  photoUrl?: string
   videos: VideoContent[]
   articles: ArticleContent[]
 }
@@ -89,7 +90,7 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
       id, slug, name, hospital, location, district, region,
       specialties, keywords, target_patients, treatments, bio,
       hours, lunch_break, closed_days, review_keywords,
-      kakao_url, website_url, photo_placeholder_color, is_published,
+      kakao_url, website_url, photo_placeholder_color, photo_url, is_published,
       doctor_videos ( url, title, date, sort_order ),
       doctor_articles ( url, title, date, platform, sort_order )
     `,
@@ -138,6 +139,7 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
     const closedDays = (row.closed_days as string | null) ?? null
     const kakaoUrl = (row.kakao_url as string | null) ?? null
     const websiteUrl = (row.website_url as string | null) ?? null
+    const photoUrl = (row.photo_url as string | null) ?? null
 
     return {
       id: row.id as string,
@@ -161,6 +163,7 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
       ...(websiteUrl ? { websiteUrl } : {}),
       photoPlaceholderColor:
         (row.photo_placeholder_color as string) ?? "#D4895A",
+      ...(photoUrl ? { photoUrl } : {}),
       videos,
       articles,
     }

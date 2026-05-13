@@ -20,10 +20,20 @@ export function DoctorCard({ doctor, compact = false }: Props) {
           <div className="flex gap-4 items-start">
             {/* 아바타 */}
             <div
-              className="w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center text-white text-xl font-bold shadow-sm"
-              style={{ backgroundColor: doctor.photoPlaceholderColor }}
+              className="w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center text-white text-xl font-bold shadow-sm overflow-hidden"
+              style={doctor.photoUrl ? undefined : { backgroundColor: doctor.photoPlaceholderColor }}
             >
-              {doctor.name[0]}
+              {doctor.photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={doctor.photoUrl}
+                  alt={`${doctor.name} 선생님 프로필 사진`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                doctor.name[0]
+              )}
             </div>
 
             {/* 기본 정보 */}

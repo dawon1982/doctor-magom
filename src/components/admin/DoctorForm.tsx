@@ -3,6 +3,7 @@
 import { useActionState, useState, useTransition } from "react"
 import { fillDoctorAi } from "@/app/admin/doctors/[id]/ai-actions"
 import { fetchYoutubeVideos } from "@/app/admin/doctors/[id]/youtube-actions"
+import { PhotoUploader } from "@/components/admin/PhotoUploader"
 
 export type DoctorFormValues = {
   slug?: string
@@ -24,6 +25,7 @@ export type DoctorFormValues = {
   websiteUrl?: string | null
   youtubeChannelUrl?: string | null
   photoPlaceholderColor?: string
+  photoUrl?: string | null
   isPublished?: boolean
 }
 
@@ -402,10 +404,19 @@ export default function DoctorForm({
         )}
       </div>
 
+      {doctorId && (
+        <PhotoUploader
+          doctorId={doctorId}
+          initialUrl={initial?.photoUrl ?? null}
+          placeholderColor={s.photoPlaceholderColor}
+          initial={s.name?.charAt(0) || "?"}
+        />
+      )}
+
       <div className="grid sm:grid-cols-2 gap-3 items-end">
         <Field
           name="photoPlaceholderColor"
-          label="아바타 색상"
+          label="아바타 색상 (사진 없을 때 fallback)"
           value={s.photoPlaceholderColor}
           onChange={(e) => update({ photoPlaceholderColor: e.target.value })}
         />

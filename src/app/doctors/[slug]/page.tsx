@@ -137,7 +137,7 @@ function buildPhysicianJsonLd(
     url,
     name: doctor.name,
     medicalSpecialty: "Psychiatric",
-    image: `${url}/opengraph-image`,
+    image: doctor.photoUrl || `${url}/opengraph-image`,
     description: doctor.bio || undefined,
     knowsAbout: doctor.specialties,
     address: {
@@ -213,10 +213,19 @@ export default async function DoctorDetailPage({ params }: Props) {
           <div className="flex gap-5 items-start">
             {/* 아바타 */}
             <div
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex-shrink-0 flex items-center justify-center text-white text-3xl font-bold shadow-md"
-              style={{ backgroundColor: doctor.photoPlaceholderColor }}
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex-shrink-0 flex items-center justify-center text-white text-3xl font-bold shadow-md overflow-hidden"
+              style={doctor.photoUrl ? undefined : { backgroundColor: doctor.photoPlaceholderColor }}
             >
-              {doctor.name[0]}
+              {doctor.photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={doctor.photoUrl}
+                  alt={`${doctor.name} 선생님 프로필 사진`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                doctor.name[0]
+              )}
             </div>
 
             {/* 기본 정보 */}

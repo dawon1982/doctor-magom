@@ -41,6 +41,8 @@ export type DoctorRow = {
   /** Added in migration 005 */
   youtube_channel_url: string | null
   photo_placeholder_color: string
+  /** Added in migration 009 — public Supabase Storage URL */
+  photo_url: string | null
   is_published: boolean
   created_at: string
   updated_at: string

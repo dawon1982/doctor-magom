@@ -77,6 +77,7 @@ export default async function DoctorProfilePage() {
     websiteUrl: data.website_url,
     youtubeChannelUrl: data.youtube_channel_url,
     photoPlaceholderColor: data.photo_placeholder_color,
+    photoUrl: data.photo_url,
     isPublished: data.is_published,
   }
 

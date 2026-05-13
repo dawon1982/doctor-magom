@@ -70,24 +70,41 @@ export default async function DoctorOG({
             marginTop: "60px",
           }}
         >
-          <div
-            style={{
-              width: "200px",
-              height: "200px",
-              borderRadius: "44px",
-              background: accent,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontSize: "120px",
-              fontWeight: 900,
-              flexShrink: 0,
-              boxShadow: "0 18px 40px rgba(0,0,0,0.12)",
-            }}
-          >
-            {initial}
-          </div>
+          {doctor.photoUrl ? (
+            <img
+              src={doctor.photoUrl}
+              alt=""
+              width={200}
+              height={200}
+              style={{
+                width: "200px",
+                height: "200px",
+                borderRadius: "44px",
+                objectFit: "cover",
+                flexShrink: 0,
+                boxShadow: "0 18px 40px rgba(0,0,0,0.12)",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: "200px",
+                height: "200px",
+                borderRadius: "44px",
+                background: accent,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontSize: "120px",
+                fontWeight: 900,
+                flexShrink: 0,
+                boxShadow: "0 18px 40px rgba(0,0,0,0.12)",
+              }}
+            >
+              {initial}
+            </div>
+          )}
           <div style={{ display: "flex", flexDirection: "column", gap: "12px", flex: 1 }}>
             <span style={{ fontSize: "78px", fontWeight: 900, letterSpacing: "-2px", lineHeight: 1.05 }}>
               {doctor.name}
