@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { MapPin, PlayCircle, FileText } from "lucide-react"
 import type { Doctor } from "@/lib/data/doctors-db"
+import { OpenStatusBadge } from "@/components/doctor/OpenStatusBadge"
 
 type Props = {
   doctor: Doctor
@@ -34,9 +35,17 @@ export function DoctorCard({ doctor, compact = false }: Props) {
                 <span className="text-xs text-muted-foreground">정신건강의학과 전문의</span>
               </div>
               <p className="text-sm font-medium text-foreground/80 mt-0.5 truncate">{doctor.hospital}</p>
-              <div className="flex items-center gap-1 mt-1">
-                <MapPin size={11} className="text-muted-foreground flex-shrink-0" />
-                <span className="text-xs text-muted-foreground truncate">{doctor.district}</span>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <div className="flex items-center gap-1">
+                  <MapPin size={11} className="text-muted-foreground flex-shrink-0" />
+                  <span className="text-xs text-muted-foreground truncate">{doctor.district}</span>
+                </div>
+                <OpenStatusBadge
+                  hours={doctor.hours}
+                  lunchBreak={doctor.lunchBreak}
+                  closedDays={doctor.closedDays}
+                  variant="card"
+                />
               </div>
             </div>
           </div>

@@ -7,7 +7,8 @@ import {
   type Doctor,
 } from "@/lib/data/doctors-db"
 import type { Metadata } from "next"
-import { getSiteUrl, SITE_NAME } from "@/lib/site"
+import { getSiteUrl } from "@/lib/site"
+import { OpenStatusBadge } from "@/components/doctor/OpenStatusBadge"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -187,6 +188,12 @@ export default async function DoctorDetailPage({ params }: Props) {
               </div>
               <h2 className="font-bold text-base">진료시간</h2>
             </div>
+            <OpenStatusBadge
+              hours={doctor.hours}
+              lunchBreak={doctor.lunchBreak}
+              closedDays={doctor.closedDays}
+              variant="panel"
+            />
             <div className="space-y-2">
               {doctor.hours.map((h) => (
                 <div key={h.day} className="flex justify-between text-sm">
