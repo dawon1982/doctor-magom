@@ -83,28 +83,60 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
     return []
   }
   const supabase = createAdminClient()
-  const { data, error } = await supabase
-    .from("doctors")
-    .select(
-      `
+  const fullSelect = `
       id, slug, name, hospital, location, district, region,
       specialties, keywords, target_patients, treatments, bio,
       hours, lunch_break, closed_days, review_keywords,
       kakao_url, website_url, photo_placeholder_color, photo_url, is_published,
       doctor_videos ( url, title, date, sort_order ),
       doctor_articles ( url, title, date, platform, sort_order )
-    `,
-    )
-    .eq("is_published", true)
-    .order("created_at", { ascending: true })
+    `
+  // Fallback select without photo_url — used when migration 009 hasn't run
+  // or the PostgREST schema cache hasn't refreshed yet.
+  const fallbackSelect = `
+      id, slug, name, hospital, location, district, region,
+      specialties, keywords, target_patients, treatments, bio,
+      hours, lunch_break, closed_days, review_keywords,
+      kakao_url, website_url, photo_placeholder_color, is_published,
+      doctor_videos ( url, title, date, sort_order ),
+      doctor_articles ( url, title, date, platform, sort_order )
+    `
 
-  if (error) {
-    console.error("[doctors-db] fetchAllDoctors failed:", error.message)
+  // Untype the result so we can swap between full/fallback shapes if the
+  // photo_url column hasn't been migrated yet.
+  let data: Record<string, unknown>[] | null
+  let errorMsg: string | null
+  {
+    const res = await supabase
+      .from("doctors")
+      .select(fullSelect)
+      .eq("is_published", true)
+      .order("created_at", { ascending: true })
+    data = res.data as unknown as Record<string, unknown>[] | null
+    errorMsg = res.error?.message ?? null
+  }
+
+  if (errorMsg && /photo_url|column .* does not exist/i.test(errorMsg)) {
+    // Retry without photo_url so the site keeps working until the migration lands.
+    console.warn(
+      "[doctors-db] photo_url column missing — falling back to legacy select. Run migration 009.",
+    )
+    const retry = await supabase
+      .from("doctors")
+      .select(fallbackSelect)
+      .eq("is_published", true)
+      .order("created_at", { ascending: true })
+    data = retry.data as unknown as Record<string, unknown>[] | null
+    errorMsg = retry.error?.message ?? null
+  }
+
+  if (errorMsg) {
+    console.error("[doctors-db] fetchAllDoctors failed:", errorMsg)
     return []
   }
   if (!data) return []
 
-  return (data as Array<Record<string, unknown>>).map((row): Doctor => {
+  return data.map((row): Doctor => {
     type RawVideo = {
       url: string
       title: string
