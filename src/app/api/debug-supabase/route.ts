@@ -6,8 +6,6 @@
 import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 
-export const dynamic = "force-dynamic"
-
 export async function GET() {
   const urlSet = !!process.env.NEXT_PUBLIC_SUPABASE_URL
   const keySet = !!process.env.SUPABASE_SERVICE_ROLE_KEY
