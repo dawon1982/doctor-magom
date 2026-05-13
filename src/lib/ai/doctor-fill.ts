@@ -1,7 +1,7 @@
 import "server-only"
 import { htmlToText } from "html-to-text"
 import Anthropic from "@anthropic-ai/sdk"
-import { getAnthropic } from "./anthropic"
+import { getAnthropic, getModelId } from "./anthropic"
 import { AiDoctorFillSchema, type AiDoctorFill } from "@/lib/validation/ai"
 import {
   DOCTOR_FILL_SYSTEM_PROMPT,
@@ -89,7 +89,8 @@ export async function fillDoctorFromUrl(opts: {
   if (!client) {
     return {
       ok: false,
-      error: "ANTHROPIC_API_KEY가 설정되지 않았어요. 관리자에게 문의해주세요.",
+      error:
+        "AI Gateway 또는 Anthropic API key가 설정되지 않았어요. 관리자에게 문의해주세요.",
     }
   }
 
@@ -110,7 +111,7 @@ export async function fillDoctorFromUrl(opts: {
 
   try {
     const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: getModelId("sonnet-4-6"),
       max_tokens: 2048,
       system: [
         {
