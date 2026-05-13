@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Heart, Video, FileText, Search, Shield, Star } from "lucide-react"
+import { ArrowRight, Heart, Video, FileText, Search, Shield, Sparkles } from "lucide-react"
 import { getAllDoctors, getAllVideos, getAllArticles } from "@/lib/data/doctors-db"
 import { DoctorCard } from "@/components/doctor/DoctorCard"
 
@@ -62,16 +62,16 @@ export default async function Home() {
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
-              href="/doctors"
+              href="/match"
               className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-base font-semibold text-primary-foreground hover:opacity-90 transition-opacity shadow-md shadow-primary/25"
             >
-              선생님 찾기 <ArrowRight size={17} />
+              <Sparkles size={17} /> AI로 의사 추천받기
             </Link>
             <Link
-              href="/about"
+              href="/doctors"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-7 py-3.5 text-base font-medium text-foreground hover:bg-muted transition-colors"
             >
-              서비스 소개
+              직접 찾아보기 <ArrowRight size={17} />
             </Link>
           </div>
 
@@ -318,16 +318,16 @@ export default async function Home() {
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <Link
-              href="/doctors"
+              href="/match"
               className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
             >
-              선생님 찾기 <ArrowRight size={17} />
+              <Sparkles size={17} /> AI 추천받기
             </Link>
             <Link
-              href="/apply"
+              href="/doctors"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-8 py-4 text-base font-medium hover:bg-background transition-colors"
             >
-              <Star size={15} className="text-primary" /> 의사 입점 문의
+              <Search size={15} className="text-primary" /> 직접 찾아보기
             </Link>
           </div>
         </div>

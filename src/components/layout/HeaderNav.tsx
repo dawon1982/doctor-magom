@@ -7,7 +7,8 @@ import { Menu, X } from "lucide-react"
 import { UserMenu } from "@/components/auth/UserMenu"
 import type { Role } from "@/lib/supabase/types"
 
-const navItems = [
+const navItems: { href: string; label: string; highlight?: boolean }[] = [
+  { href: "/match", label: "AI 추천", highlight: true },
   { href: "/doctors", label: "선생님 찾기" },
   { href: "/videos", label: "영상 보기" },
   { href: "/articles", label: "기고글" },
@@ -39,19 +40,21 @@ export function HeaderNav({ user }: { user: HeaderUser }) {
 
           {/* 데스크탑 네비게이션 */}
           <nav className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  pathname === item.href
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = pathname === item.href
+              const base = "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1"
+              const cls = isActive
+                ? "bg-primary text-primary-foreground"
+                : item.highlight
+                  ? "text-primary hover:bg-primary/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              return (
+                <Link key={item.href} href={item.href} className={`${base} ${cls}`}>
+                  {item.highlight && !isActive && <span aria-hidden>✨</span>}
+                  {item.label}
+                </Link>
+              )
+            })}
           </nav>
 
           {/* 데스크탑 CTA */}
@@ -97,20 +100,26 @@ export function HeaderNav({ user }: { user: HeaderUser }) {
       {menuOpen && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="mx-auto max-w-6xl px-4 py-4 flex flex-col gap-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMenuOpen(false)}
-                className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  pathname === item.href
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground hover:bg-muted"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = pathname === item.href
+              const base = "px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5"
+              const cls = isActive
+                ? "bg-primary text-primary-foreground"
+                : item.highlight
+                  ? "text-primary bg-primary/5"
+                  : "text-foreground hover:bg-muted"
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={`${base} ${cls}`}
+                >
+                  {item.highlight && !isActive && <span aria-hidden>✨</span>}
+                  {item.label}
+                </Link>
+              )
+            })}
             <div className="pt-3 border-t border-border mt-2 flex flex-col gap-2">
               <Link
                 href="/apply"
