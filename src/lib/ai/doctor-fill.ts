@@ -9,8 +9,8 @@ import {
   buildUserMessage,
 } from "./prompts"
 
-const FETCH_TIMEOUT_MS = 10_000
-const MAX_BODY_BYTES = 1_000_000 // 1 MB
+const FETCH_TIMEOUT_MS = 15_000
+const MAX_BODY_BYTES = 5_000_000 // 5 MB — Korean clinic sites are often 2-4MB with inline images
 const MAX_TEXT_CHARS = 12_000
 
 export type FillResult =
@@ -54,12 +54,12 @@ async function fetchPageText(url: string): Promise<string> {
     throw new Error(`페이지가 ${res.status} 응답을 반환했어요.`)
   }
 
-  // Read with size cap
+  // Read with size cap — if oversized, truncate (don't fail) so we can still
+  // try extraction from the first chunk.
   const buf = await res.arrayBuffer()
-  if (buf.byteLength > MAX_BODY_BYTES) {
-    throw new Error("페이지 본문이 1MB를 초과해요. 더 작은 페이지를 시도해주세요.")
-  }
-  const html = new TextDecoder("utf-8").decode(buf)
+  const slice = buf.byteLength > MAX_BODY_BYTES ? buf.slice(0, MAX_BODY_BYTES) : buf
+  // fatal:false → tolerate cutting a multi-byte UTF-8 sequence at the boundary
+  const html = new TextDecoder("utf-8", { fatal: false }).decode(slice)
 
   const text = htmlToText(html, {
     wordwrap: false,
