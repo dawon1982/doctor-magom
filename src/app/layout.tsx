@@ -4,21 +4,63 @@ import "./globals.css"
 import { Header } from "@/components/layout/Header"
 import { HeaderShell } from "@/components/layout/HeaderShell"
 import { Footer } from "@/components/layout/Footer"
+import { getSiteUrl, SITE_NAME, SITE_TAGLINE } from "@/lib/site"
+
+const SITE_URL = getSiteUrl()
+const SITE_TITLE = `${SITE_NAME} | ${SITE_TAGLINE}`
+const SITE_DESCRIPTION =
+  "정신건강의학과 의사의 얼굴, 말투, 영상, 글을 보고 나와 잘 맞는 선생님을 직접 골라보세요. AI가 내 상황에 맞는 의사를 추천해줘요."
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "닥터마음곰 | 나와 맞는 정신건강의학과 선생님 찾기",
-    template: "%s | 닥터마음곰",
+    default: SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "정신건강의학과 의사의 얼굴, 말투, 영상, 글을 보고 나와 잘 맞는 선생님을 직접 골라보세요. 강남언니처럼, 마음 맞는 정신건강의학과 선생님과 연결됩니다.",
-  keywords: ["정신건강의학과", "정신과", "ADHD", "우울증", "공황장애", "의사 추천", "닥터마음곰"],
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "정신건강의학과",
+    "정신과",
+    "정신과 추천",
+    "ADHD",
+    "우울증",
+    "불안장애",
+    "공황장애",
+    "불면증",
+    "의사 추천",
+    "강남 정신과",
+    "AI 의사 매칭",
+    "닥터마음곰",
+  ],
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "닥터마음곰 | 나와 맞는 정신건강의학과 선생님 찾기",
-    description: "정신건강의학과 의사의 얼굴, 말투, 영상, 글을 보고 나와 맞는 선생님을 직접 골라보세요.",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
     locale: "ko_KR",
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: { icon: "/favicon.ico" },
 }
 
 export default function RootLayout({

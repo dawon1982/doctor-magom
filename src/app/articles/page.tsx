@@ -4,7 +4,14 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "기고글",
-  description: "정신건강의학과 선생님들이 직접 쓴 기고글을 읽어보세요",
+  description:
+    "정신건강의학과 선생님들이 직접 쓴 기고글로 정신건강·치료법·약물·상담에 대해 의사 관점에서 설명을 읽어보세요.",
+  alternates: { canonical: "/articles" },
+  openGraph: {
+    title: "선생님 기고글 모아보기 | 닥터마음곰",
+    description: "정신건강의학과 의사들이 직접 쓴 기고글 모음",
+    type: "website",
+  },
 }
 
 export default async function ArticlesPage() {

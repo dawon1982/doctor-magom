@@ -4,8 +4,10 @@ import { MapPin, Clock, Phone, Globe, PlayCircle, FileText, ChevronLeft, Star } 
 import {
   getDoctorBySlug,
   getAllDoctorSlugs,
+  type Doctor,
 } from "@/lib/data/doctors-db"
 import type { Metadata } from "next"
+import { getSiteUrl, SITE_NAME } from "@/lib/site"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -20,9 +22,46 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const doctor = await getDoctorBySlug(slug)
   if (!doctor) return {}
+  const specialties = doctor.specialties.slice(0, 3).join(", ")
+  const title = `${doctor.name} | ${doctor.hospital}`
+  const description = `${doctor.region} ${doctor.district} ${doctor.hospital} ${doctor.name} 정신건강의학과 전문의${specialties ? ` — ${specialties}` : ""}. 영상·진료 스타일을 미리 확인하고 예약하세요.`
   return {
-    title: `${doctor.name} | ${doctor.hospital}`,
-    description: `${doctor.name} 정신건강의학과 전문의 | ${doctor.hospital} | ${doctor.specialties.slice(0, 3).join(", ")}`,
+    title,
+    description,
+    alternates: { canonical: `/doctors/${slug}` },
+    openGraph: {
+      title: `${doctor.name} | 닥터마음곰`,
+      description,
+      type: "profile",
+      url: `${getSiteUrl()}/doctors/${slug}`,
+    },
+  }
+}
+
+function buildPhysicianJsonLd(doctor: Doctor, base: string) {
+  const url = `${base}/doctors/${doctor.slug}`
+  return {
+    "@context": "https://schema.org",
+    "@type": "Physician",
+    "@id": url,
+    url,
+    name: doctor.name,
+    medicalSpecialty: "Psychiatric",
+    image: `${url}/opengraph-image`,
+    description: doctor.bio || undefined,
+    knowsAbout: doctor.specialties,
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: "KR",
+      addressRegion: doctor.region,
+      addressLocality: doctor.district,
+      streetAddress: doctor.location,
+    },
+    worksFor: {
+      "@type": "MedicalOrganization",
+      name: doctor.hospital,
+    },
+    sameAs: [doctor.websiteUrl, doctor.kakaoUrl].filter(Boolean),
   }
 }
 
@@ -38,8 +77,15 @@ export default async function DoctorDetailPage({ params }: Props) {
   const doctor = await getDoctorBySlug(slug)
   if (!doctor) notFound()
 
+  const jsonLd = buildPhysicianJsonLd(doctor, getSiteUrl())
+
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        // JSON.stringify with no replacer/spaces — fine for raw structured data
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* 뒤로가기 */}
       <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-6">
         <Link

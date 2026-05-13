@@ -4,7 +4,14 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "서비스 소개",
-  description: "닥터마음곰 서비스 소개 - 정신건강의학과 의사 매칭 플랫폼",
+  description:
+    "닥터마음곰은 정신건강의학과 의사를 영상·말투·진료 스타일로 미리 확인하고 환자가 직접 고를 수 있게 도와주는 매칭 플랫폼이에요. AI가 내 상황을 듣고 잘 맞는 의사를 추천해드려요.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "닥터마음곰 서비스 소개",
+    description: "정신건강의학과계의 강남언니 — 영상으로 의사를 먼저 만나는 매칭 플랫폼",
+    type: "website",
+  },
 }
 
 const features = [

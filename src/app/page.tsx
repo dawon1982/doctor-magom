@@ -2,6 +2,36 @@ import Link from "next/link"
 import { ArrowRight, Heart, Video, FileText, Search, Shield, Sparkles } from "lucide-react"
 import { getAllDoctors, getAllVideos, getAllArticles } from "@/lib/data/doctors-db"
 import { DoctorCard } from "@/components/doctor/DoctorCard"
+import { getSiteUrl, SITE_NAME, SITE_TAGLINE } from "@/lib/site"
+
+const HOME_JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${getSiteUrl()}#org`,
+      name: SITE_NAME,
+      url: getSiteUrl(),
+      logo: `${getSiteUrl()}/opengraph-image`,
+      description: SITE_TAGLINE,
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${getSiteUrl()}#site`,
+      url: getSiteUrl(),
+      name: SITE_NAME,
+      inLanguage: "ko-KR",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${getSiteUrl()}/doctors?q={search_term_string}`,
+        },
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
+}
 
 const prejudiceItems = [
   {
@@ -37,6 +67,10 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(HOME_JSON_LD) }}
+      />
       {/* ─── Hero ─── */}
       <section className="relative overflow-hidden bg-gradient-to-b from-accent/40 via-background to-background pt-16 pb-20 sm:pt-24 sm:pb-28">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

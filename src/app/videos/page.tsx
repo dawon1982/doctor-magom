@@ -5,7 +5,14 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "영상 보기",
-  description: "정신건강의학과 선생님들의 유튜브 영상을 모아보세요",
+  description:
+    "정신건강의학과 선생님들의 유튜브 영상을 한곳에서 모아보세요. 우울·불안·ADHD·관계 문제 등 의사가 직접 설명하는 영상을 보고 진료 스타일을 미리 확인할 수 있어요.",
+  alternates: { canonical: "/videos" },
+  openGraph: {
+    title: "선생님 영상 모아보기 | 닥터마음곰",
+    description: "정신건강의학과 선생님들의 유튜브 영상 모음",
+    type: "website",
+  },
 }
 
 function getYouTubeId(url: string) {

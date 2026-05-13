@@ -3,7 +3,14 @@ import ApplyForm from "./ApplyForm"
 
 export const metadata: Metadata = {
   title: "의사 입점 신청",
-  description: "닥터마음곰에 정신건강의학과 전문의로 입점을 신청해주세요.",
+  description:
+    "정신건강의학과 전문의로서 닥터마음곰에 입점을 신청해주세요. 영상·기고글·블로그 등 보유 채널만 알려주시면 운영팀이 직접 프로필을 만들어드려요.",
+  alternates: { canonical: "/apply" },
+  openGraph: {
+    title: "의사 입점 신청 | 닥터마음곰",
+    description: "정신건강의학과 전문의 파트너 모집",
+    type: "website",
+  },
 }
 
 export default function ApplyPage() {

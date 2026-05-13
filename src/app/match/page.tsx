@@ -2,9 +2,15 @@ import type { Metadata } from "next"
 import MatchForm from "./MatchForm"
 
 export const metadata: Metadata = {
-  title: "AI 의사 추천 — 닥터마음곰",
+  title: "AI 의사 추천",
   description:
-    "내 상황을 자유롭게 적으면 닥터마음곰이 잘 맞는 정신건강의학과 의사 3명을 추천해드려요.",
+    "내 상황·증상·원하는 진료 스타일을 자유롭게 적으면 AI가 닥터마음곰에 등록된 정신건강의학과 의사 중에서 가장 잘 맞는 3명을 골라드려요. 익명, 무료.",
+  alternates: { canonical: "/match" },
+  openGraph: {
+    title: "AI 의사 추천 | 닥터마음곰",
+    description: "내 상황에 맞는 정신건강의학과 의사를 AI가 골라드려요",
+    type: "website",
+  },
 }
 
 export default function MatchPage() {
