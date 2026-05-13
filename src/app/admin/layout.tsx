@@ -7,6 +7,7 @@ const NAV = [
   { href: "/admin/doctors", label: "의사 관리" },
   { href: "/admin/applications", label: "입점 신청" },
   { href: "/admin/patients", label: "환자 CRM" },
+  { href: "/admin/match-queries", label: "AI 매칭 분석" },
 ]
 
 export default async function AdminLayout({
