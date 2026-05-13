@@ -3,6 +3,8 @@ import {
   getAllDoctors,
   getAllSpecialties,
 } from "@/lib/data/doctors-db"
+import { getSessionUser } from "@/lib/auth/dal"
+import { getMyFavoriteDoctorIds } from "@/lib/actions/favorites"
 import DoctorsClient from "./DoctorsClient"
 
 export const metadata: Metadata = {
@@ -18,9 +20,18 @@ export const metadata: Metadata = {
 }
 
 export default async function DoctorsPage() {
-  const [doctors, specialties] = await Promise.all([
+  const [doctors, specialties, user, favoriteIds] = await Promise.all([
     getAllDoctors(),
     getAllSpecialties(),
+    getSessionUser(),
+    getMyFavoriteDoctorIds(),
   ])
-  return <DoctorsClient doctors={doctors} specialties={specialties} />
+  return (
+    <DoctorsClient
+      doctors={doctors}
+      specialties={specialties}
+      favoriteIds={[...favoriteIds]}
+      isLoggedIn={!!user}
+    />
+  )
 }

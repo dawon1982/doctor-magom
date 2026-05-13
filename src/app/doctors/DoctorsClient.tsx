@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect } from "react"
 import { Search, SlidersHorizontal, X, ArrowRight, User, Building2, Tag, MapPin } from "lucide-react"
 import Link from "next/link"
 import { DoctorCard } from "@/components/doctor/DoctorCard"
+import { FavoriteButton } from "@/components/doctor/FavoriteButton"
 import type { Doctor } from "@/lib/data/doctors-db"
 
 const MAX_COMPARE = 3
@@ -87,10 +88,15 @@ const regionPills = [
 export default function DoctorsClient({
   doctors,
   specialties,
+  favoriteIds = [],
+  isLoggedIn = false,
 }: {
   doctors: Doctor[]
   specialties: string[]
+  favoriteIds?: string[]
+  isLoggedIn?: boolean
 }) {
+  const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds])
   const [search, setSearch] = useState("")
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(null)
@@ -403,6 +409,14 @@ export default function DoctorsClient({
               return (
                 <div key={doctor.id} className="relative">
                   <DoctorCard doctor={doctor} />
+                  <div className="absolute top-3 left-3 z-10">
+                    <FavoriteButton
+                      doctorId={doctor.id}
+                      initialFavorited={favoriteSet.has(doctor.id)}
+                      isLoggedIn={isLoggedIn}
+                      variant="icon"
+                    />
+                  </div>
                   <button
                     type="button"
                     disabled={reachedMax}

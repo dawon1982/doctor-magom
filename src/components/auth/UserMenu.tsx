@@ -63,6 +63,13 @@ export function UserMenu({ user }: { user: NonNullable<HeaderUser> }) {
               내 프로필
             </Link>
           )}
+          <Link
+            href="/favorites"
+            className="block px-3 py-2 hover:bg-accent"
+            onClick={() => setOpen(false)}
+          >
+            ❤️ 즐겨찾기
+          </Link>
           <form action="/auth/signout" method="post">
             <button
               type="submit"

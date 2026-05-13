@@ -9,6 +9,9 @@ import {
 import type { Metadata } from "next"
 import { getSiteUrl } from "@/lib/site"
 import { OpenStatusBadge } from "@/components/doctor/OpenStatusBadge"
+import { FavoriteButton } from "@/components/doctor/FavoriteButton"
+import { getSessionUser } from "@/lib/auth/dal"
+import { getMyFavoriteDoctorIds } from "@/lib/actions/favorites"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -78,6 +81,12 @@ export default async function DoctorDetailPage({ params }: Props) {
   const doctor = await getDoctorBySlug(slug)
   if (!doctor) notFound()
 
+  const [user, favoriteIds] = await Promise.all([
+    getSessionUser(),
+    getMyFavoriteDoctorIds(),
+  ])
+  const isFavorited = favoriteIds.has(doctor.id)
+
   const jsonLd = buildPhysicianJsonLd(doctor, getSiteUrl())
 
   return (
@@ -131,6 +140,15 @@ export default async function DoctorDetailPage({ params }: Props) {
                     {kw}
                   </span>
                 ))}
+              </div>
+
+              <div className="mt-4">
+                <FavoriteButton
+                  doctorId={doctor.id}
+                  initialFavorited={isFavorited}
+                  isLoggedIn={!!user}
+                  variant="labeled"
+                />
               </div>
             </div>
           </div>
