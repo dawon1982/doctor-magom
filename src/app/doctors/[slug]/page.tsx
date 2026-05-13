@@ -10,8 +10,11 @@ import type { Metadata } from "next"
 import { getSiteUrl } from "@/lib/site"
 import { OpenStatusBadge } from "@/components/doctor/OpenStatusBadge"
 import { FavoriteButton } from "@/components/doctor/FavoriteButton"
+import { ReviewSection, type Review } from "@/components/doctor/ReviewSection"
 import { getSessionUser } from "@/lib/auth/dal"
 import { getMyFavoriteDoctorIds } from "@/lib/actions/favorites"
+import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -40,6 +43,49 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `${getSiteUrl()}/doctors/${slug}`,
     },
   }
+}
+
+type DoctorReviewRow = {
+  id: string
+  user_id: string
+  rating: number
+  body: string
+  created_at: string
+  updated_at: string
+  author_name: string | null
+}
+
+async function fetchDoctorReviews(doctorId: string): Promise<DoctorReviewRow[]> {
+  // Use the cookie-bound client so RLS auto-filters out hidden reviews while
+  // still showing the author their own row. We resolve display names via the
+  // admin client because profiles is admin-locked for other people's data.
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("doctor_reviews")
+    .select("id, user_id, rating, body, created_at, updated_at")
+    .eq("doctor_id", doctorId)
+    .order("created_at", { ascending: false })
+  if (error || !data?.length) return []
+
+  const admin = createAdminClient()
+  const userIds = [...new Set(data.map((r) => r.user_id as string))]
+  const { data: profileRows } = await admin
+    .from("profiles")
+    .select("id, display_name")
+    .in("id", userIds)
+  const nameMap = new Map<string, string | null>(
+    (profileRows ?? []).map((p) => [p.id as string, (p.display_name as string | null) ?? null]),
+  )
+
+  return data.map((r) => ({
+    id: r.id as string,
+    user_id: r.user_id as string,
+    rating: r.rating as number,
+    body: r.body as string,
+    created_at: r.created_at as string,
+    updated_at: r.updated_at as string,
+    author_name: nameMap.get(r.user_id as string) ?? null,
+  }))
 }
 
 function buildPhysicianJsonLd(doctor: Doctor, base: string) {
@@ -81,11 +127,24 @@ export default async function DoctorDetailPage({ params }: Props) {
   const doctor = await getDoctorBySlug(slug)
   if (!doctor) notFound()
 
-  const [user, favoriteIds] = await Promise.all([
+  const [user, favoriteIds, reviewsResult] = await Promise.all([
     getSessionUser(),
     getMyFavoriteDoctorIds(),
+    fetchDoctorReviews(doctor.id),
   ])
   const isFavorited = favoriteIds.has(doctor.id)
+  const myReview = user
+    ? reviewsResult.find((r) => r.user_id === user.id) ?? null
+    : null
+  const publicReviews: Review[] = reviewsResult.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    body: r.body,
+    created_at: r.created_at,
+    updated_at: r.updated_at,
+    authorName: r.author_name,
+    isOwn: user?.id === r.user_id,
+  }))
 
   const jsonLd = buildPhysicianJsonLd(doctor, getSiteUrl())
 
@@ -373,6 +432,27 @@ export default async function DoctorDetailPage({ params }: Props) {
             </div>
           </div>
         )}
+
+        {/* ─── 환자 후기 (사용자 직접 입력) ─── */}
+        <ReviewSection
+          doctorId={doctor.id}
+          doctorSlug={doctor.slug}
+          isLoggedIn={!!user}
+          reviews={publicReviews}
+          myReview={
+            myReview
+              ? {
+                  id: myReview.id,
+                  rating: myReview.rating,
+                  body: myReview.body,
+                  created_at: myReview.created_at,
+                  updated_at: myReview.updated_at,
+                  authorName: myReview.author_name,
+                  isOwn: true,
+                }
+              : null
+          }
+        />
 
         {/* ─── 다른 선생님 보기 ─── */}
         <div className="mt-8 text-center">
