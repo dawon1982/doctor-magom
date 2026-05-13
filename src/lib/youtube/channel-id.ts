@@ -49,12 +49,17 @@ export async function resolveChannelId(raw: string): Promise<string | null> {
   if (!res.ok) return null
 
   const html = await res.text()
-  // Try a sequence of patterns — YouTube serves both old and new markup.
+  // Patterns in priority order. `channelId` JSON appears for every UC ID
+  // present on the page (recommendations, comments, links), so it's the
+  // LEAST reliable — use it only as a last resort. Canonical link points
+  // unambiguously at the page's own channel.
   const patterns = [
+    /<link\s+rel="canonical"\s+href="https?:\/\/[^"]*\/channel\/(UC[A-Za-z0-9_-]{22})"/i,
+    /<meta\s+property="og:url"\s+content="https?:\/\/[^"]*\/channel\/(UC[A-Za-z0-9_-]{22})"/i,
+    /<meta\s+itemprop="(?:channelId|identifier)"\s+content="(UC[A-Za-z0-9_-]{22})"/i,
+    /"externalChannelId":"(UC[A-Za-z0-9_-]{22})"/,
+    /"webCommandMetadata"[^}]*"url":"\/channel\/(UC[A-Za-z0-9_-]{22})"/,
     /"channelId":"(UC[A-Za-z0-9_-]{22})"/,
-    /<meta itemprop="(?:channelId|identifier)" content="(UC[A-Za-z0-9_-]{22})"/,
-    /<link rel="canonical" href="https?:\/\/[^"]*\/channel\/(UC[A-Za-z0-9_-]{22})"/,
-    /\/channel\/(UC[A-Za-z0-9_-]{22})/,
   ]
   for (const p of patterns) {
     const match = html.match(p)
