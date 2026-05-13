@@ -2,6 +2,7 @@
 
 import { useActionState, useState, useTransition } from "react"
 import { fillDoctorAi } from "@/app/admin/doctors/[id]/ai-actions"
+import { fetchYoutubeVideos } from "@/app/admin/doctors/[id]/youtube-actions"
 
 export type DoctorFormValues = {
   slug?: string
@@ -21,6 +22,7 @@ export type DoctorFormValues = {
   reviewKeywords?: { text: string; count: number }[]
   kakaoUrl?: string | null
   websiteUrl?: string | null
+  youtubeChannelUrl?: string | null
   photoPlaceholderColor?: string
   isPublished?: boolean
 }
@@ -45,6 +47,7 @@ type State = {
   reviewKeywords: string
   kakaoUrl: string
   websiteUrl: string
+  youtubeChannelUrl: string
   photoPlaceholderColor: string
 }
 
@@ -67,6 +70,7 @@ function initialState(v: DoctorFormValues): State {
     reviewKeywords: JSON.stringify(v.reviewKeywords ?? [], null, 2),
     kakaoUrl: v.kakaoUrl ?? "",
     websiteUrl: v.websiteUrl ?? "",
+    youtubeChannelUrl: v.youtubeChannelUrl ?? "",
     photoPlaceholderColor: v.photoPlaceholderColor ?? "#D4895A",
   }
 }
@@ -90,6 +94,10 @@ export default function DoctorForm({
   const [isPublished, setIsPublished] = useState<boolean>(initial?.isPublished ?? true)
   const [aiPending, startAi] = useTransition()
   const [aiMsg, setAiMsg] = useState<
+    { kind: "info" | "error"; text: string } | null
+  >(null)
+  const [ytPending, startYt] = useTransition()
+  const [ytMsg, setYtMsg] = useState<
     { kind: "info" | "error"; text: string } | null
   >(null)
 
@@ -160,10 +168,37 @@ export default function DoctorForm({
         patch.kakaoUrl = d.kakaoUrl
         filledCount++
       }
+      if (d.youtubeChannelUrl) {
+        patch.youtubeChannelUrl = d.youtubeChannelUrl
+        filledCount++
+      }
       update(patch)
       setAiMsg({
         kind: "info",
         text: `AI가 ${filledCount}개 필드를 제안했어요. 검토 후 저장하세요.`,
+      })
+    })
+  }
+
+  function runYoutubeFetch() {
+    if (!doctorId) return
+    const url = s.youtubeChannelUrl.trim()
+    if (!url) {
+      setYtMsg({ kind: "error", text: "먼저 유튜브 채널 URL을 입력해주세요." })
+      return
+    }
+    setYtMsg(null)
+    startYt(async () => {
+      const result = await fetchYoutubeVideos(doctorId, url)
+      if (!result.ok) {
+        setYtMsg({ kind: "error", text: result.error })
+        return
+      }
+      setYtMsg({
+        kind: "info",
+        text: `✅ 영상 ${result.added}개 추가${
+          result.skipped ? `, ${result.skipped}개는 이미 있어 skip` : ""
+        }. /videos 페이지에서 확인하세요.`,
       })
     })
   }
@@ -327,6 +362,44 @@ export default function DoctorForm({
             </p>
           )}
         </div>
+      </div>
+
+      <div>
+        <label className="block">
+          <span className="block text-sm font-medium mb-1">
+            유튜브 채널 URL
+          </span>
+          <div className="flex gap-2">
+            <input
+              name="youtubeChannelUrl"
+              type="url"
+              value={s.youtubeChannelUrl}
+              onChange={(e) => update({ youtubeChannelUrl: e.target.value })}
+              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              placeholder="https://www.youtube.com/@handle 또는 /channel/UC..."
+            />
+            {doctorId && (
+              <button
+                type="button"
+                onClick={runYoutubeFetch}
+                disabled={ytPending || !s.youtubeChannelUrl.trim()}
+                className="shrink-0 rounded-lg bg-secondary text-secondary-foreground px-3 py-2 text-xs font-medium hover:opacity-90 disabled:opacity-50 transition-transform active:scale-95"
+                title="이 채널의 최신 영상 5개를 자동으로 의사 영상 목록에 추가합니다"
+              >
+                {ytPending ? "수집 중…" : "📺 영상 수집"}
+              </button>
+            )}
+          </div>
+        </label>
+        {ytMsg && (
+          <p
+            className={`mt-1.5 text-xs ${
+              ytMsg.kind === "error" ? "text-red-600" : "text-green-700"
+            }`}
+          >
+            {ytMsg.text}
+          </p>
+        )}
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3 items-end">

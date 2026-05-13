@@ -24,6 +24,7 @@ JSON 형식으로 추출해서 fill_doctor_profile tool 로 반환한다.
 - lunchBreak: 점심시간 (예: "13:00 - 14:00")
 - closedDays: 휴진 (예: "일요일·공휴일")
 - kakaoUrl: 카카오톡 상담/예약 URL (있을 때만, 정확한 URL 만)
+- youtubeChannelUrl: 의사·병원의 유튜브 채널 URL ('youtube.com/@handle', 'youtube.com/channel/UC...' 등). 단일 영상 URL이 아닌 **채널 URL** 만 추출.
 
 ## 핵심 규칙
 1. **페이지에 명시되지 않은 정보는 추측하지 말고 그 필드를 비워둔다.**
@@ -102,6 +103,11 @@ export const DOCTOR_FILL_TOOL = {
       kakaoUrl: {
         type: "string",
         description: "카카오톡 상담/예약 URL (페이지에 명시된 경우만)",
+      },
+      youtubeChannelUrl: {
+        type: "string",
+        description:
+          "의사·병원의 유튜브 채널 URL (단일 영상 URL이 아닌 채널 URL 만)",
       },
     },
     required: [],

@@ -37,6 +37,7 @@ export default async function EditDoctorPage({
     reviewKeywords: (data.review_keywords as DoctorFormValues["reviewKeywords"]) ?? [],
     kakaoUrl: data.kakao_url,
     websiteUrl: data.website_url,
+    youtubeChannelUrl: data.youtube_channel_url,
     photoPlaceholderColor: data.photo_placeholder_color,
     isPublished: data.is_published,
   }

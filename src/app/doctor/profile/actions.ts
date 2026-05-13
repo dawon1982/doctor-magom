@@ -43,6 +43,7 @@ export async function updateOwnDoctorProfile(
     reviewKeywords: safeJson(formData.get("reviewKeywords"), []),
     kakaoUrl: formData.get("kakaoUrl") || null,
     websiteUrl: formData.get("websiteUrl") || null,
+    youtubeChannelUrl: formData.get("youtubeChannelUrl") || null,
     photoPlaceholderColor: formData.get("photoPlaceholderColor") || "#D4895A",
     isPublished: formData.get("isPublished") === "on",
   })
@@ -69,6 +70,7 @@ export async function updateOwnDoctorProfile(
       review_keywords: parsed.data.reviewKeywords,
       kakao_url: parsed.data.kakaoUrl ?? null,
       website_url: parsed.data.websiteUrl ?? null,
+      youtube_channel_url: parsed.data.youtubeChannelUrl ?? null,
       photo_placeholder_color: parsed.data.photoPlaceholderColor,
       is_published: parsed.data.isPublished ?? true,
     })

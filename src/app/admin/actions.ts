@@ -43,6 +43,7 @@ function parseDoctorForm(formData: FormData) {
     reviewKeywords: safeJson(formData.get("reviewKeywords"), []),
     kakaoUrl: formData.get("kakaoUrl") || null,
     websiteUrl: formData.get("websiteUrl") || null,
+    youtubeChannelUrl: formData.get("youtubeChannelUrl") || null,
     photoPlaceholderColor: formData.get("photoPlaceholderColor") || "#D4895A",
     isPublished: formData.get("isPublished") === "on",
   })
@@ -67,6 +68,7 @@ function toDbRow(parsed: z.infer<typeof DoctorAdminSchema>) {
     review_keywords: parsed.reviewKeywords,
     kakao_url: parsed.kakaoUrl ?? null,
     website_url: parsed.websiteUrl ?? null,
+    youtube_channel_url: parsed.youtubeChannelUrl ?? null,
     photo_placeholder_color: parsed.photoPlaceholderColor,
     is_published: parsed.isPublished ?? true,
   }

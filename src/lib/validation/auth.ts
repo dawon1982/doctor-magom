@@ -74,6 +74,7 @@ export const DoctorProfileSchema = z.object({
     .max(20),
   kakaoUrl: z.string().url().max(300).optional().nullable(),
   websiteUrl: z.string().url().max(300).optional().nullable(),
+  youtubeChannelUrl: z.string().url().max(300).optional().nullable(),
   photoPlaceholderColor: z.string().max(20).default("#D4895A"),
   isPublished: z.coerce.boolean().optional().default(true),
 })

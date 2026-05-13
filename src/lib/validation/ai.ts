@@ -37,6 +37,7 @@ export const AiDoctorFillSchema = z.object({
   lunchBreak: z.string().max(40).optional(),
   closedDays: z.string().max(80).optional(),
   kakaoUrl: z.string().url().max(300).optional(),
+  youtubeChannelUrl: z.string().url().max(300).optional(),
 })
 
 export type AiDoctorFill = z.infer<typeof AiDoctorFillSchema>
