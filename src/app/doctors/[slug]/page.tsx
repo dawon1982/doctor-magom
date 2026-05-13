@@ -88,8 +88,48 @@ async function fetchDoctorReviews(doctorId: string): Promise<DoctorReviewRow[]> 
   }))
 }
 
-function buildPhysicianJsonLd(doctor: Doctor, base: string) {
+function buildPhysicianJsonLd(
+  doctor: Doctor,
+  base: string,
+  reviews: DoctorReviewRow[],
+) {
   const url = `${base}/doctors/${doctor.slug}`
+  // Build AggregateRating + Review array from real patient reviews so Google
+  // can render star snippets in search results. Only emit if we actually have
+  // reviews — schema validators flag aggregateRating with reviewCount=0.
+  const ratingCount = reviews.length
+  let aggregateRating: Record<string, unknown> | undefined
+  let reviewItems: Record<string, unknown>[] | undefined
+  if (ratingCount > 0) {
+    const ratingValue =
+      Math.round(
+        (reviews.reduce((a, r) => a + r.rating, 0) / ratingCount) * 10,
+      ) / 10
+    aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue,
+      ratingCount,
+      reviewCount: ratingCount,
+      bestRating: 5,
+      worstRating: 1,
+    }
+    // Cap at 10 reviews in JSON-LD — Google reads representative samples.
+    reviewItems = reviews.slice(0, 10).map((r) => ({
+      "@type": "Review",
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: r.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      author: {
+        "@type": "Person",
+        name: r.author_name || "익명",
+      },
+      datePublished: r.created_at,
+      reviewBody: r.body.slice(0, 300),
+    }))
+  }
   return {
     "@context": "https://schema.org",
     "@type": "Physician",
@@ -112,6 +152,8 @@ function buildPhysicianJsonLd(doctor: Doctor, base: string) {
       name: doctor.hospital,
     },
     sameAs: [doctor.websiteUrl, doctor.kakaoUrl].filter(Boolean),
+    ...(aggregateRating ? { aggregateRating } : {}),
+    ...(reviewItems ? { review: reviewItems } : {}),
   }
 }
 
@@ -146,7 +188,7 @@ export default async function DoctorDetailPage({ params }: Props) {
     isOwn: user?.id === r.user_id,
   }))
 
-  const jsonLd = buildPhysicianJsonLd(doctor, getSiteUrl())
+  const jsonLd = buildPhysicianJsonLd(doctor, getSiteUrl(), reviewsResult)
 
   return (
     <div className="min-h-screen bg-background">

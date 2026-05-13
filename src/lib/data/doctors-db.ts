@@ -1,7 +1,6 @@
 import "server-only"
 import { cacheLife, cacheTag, updateTag } from "next/cache"
 import { createAdminClient } from "@/lib/supabase/admin"
-import { doctors as staticDoctors } from "./doctors"
 
 // Re-export the Phase 1 type names so consumers don't need to change.
 export type { Region, Hour, ReviewKeyword } from "@/lib/supabase/types"
@@ -69,23 +68,6 @@ export const doctorTag = (slug: string) => `doctor:${slug}`
 // Fetchers (cached with revalidate-by-tag, not request-coupled cookies)
 // ---------------------------------------------------------------------------
 
-function staticFallback(): Doctor[] {
-  return staticDoctors.map((d) => ({
-    ...d,
-    videos: d.videos.map((v) => ({
-      url: v.url,
-      title: v.title,
-      ...(v.date ? { date: v.date } : {}),
-    })),
-    articles: d.articles.map((a) => ({
-      url: a.url,
-      title: a.title,
-      platform: (a.platform === "naver" ? "naver" : "other") as "naver" | "other",
-      ...(a.date ? { date: a.date } : {}),
-    })),
-  }))
-}
-
 async function getAllDoctorsRaw(): Promise<Doctor[]> {
   "use cache"
   cacheLife("hours")
@@ -96,7 +78,8 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.SUPABASE_SERVICE_ROLE_KEY
   ) {
-    return staticFallback()
+    console.error("[doctors-db] Supabase env missing — returning empty list")
+    return []
   }
   const supabase = createAdminClient()
   const { data, error } = await supabase
@@ -115,12 +98,10 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
     .order("created_at", { ascending: true })
 
   if (error) {
-    console.error("[doctors-db] fetchAllDoctors:", error.message, "— falling back to static")
-    return staticFallback()
+    console.error("[doctors-db] fetchAllDoctors failed:", error.message)
+    return []
   }
-  if (!data || data.length === 0) {
-    return staticFallback()
-  }
+  if (!data) return []
 
   return (data as Array<Record<string, unknown>>).map((row): Doctor => {
     type RawVideo = {
@@ -190,6 +171,20 @@ export async function getAllDoctors(): Promise<Doctor[]> {
   return getAllDoctorsRaw()
 }
 
+/**
+ * Build-time fallback when Supabase env vars are absent (e.g. running
+ * `next build` locally without `.env.local` populated). Next 16 with
+ * Cache Components requires `generateStaticParams` to return ≥1 entry.
+ * These are the published doctor slugs as of last reseed — they 404
+ * gracefully if outdated, and the public Vercel build always uses the
+ * live DB list anyway.
+ */
+const FALLBACK_SLUGS = [
+  "topnp", "snsp", "urmindclinic", "oneulclinic1", "yschaeum",
+  "sinsayeon", "ddcmind", "familywellnessclinc", "mindstay", "yschaeum2",
+  "magok-mind", "oneulclinic1-2", "drkidari-2", "facetimepsy", "drkidari",
+]
+
 export async function getAllDoctorSlugs(): Promise<string[]> {
   // Called from generateStaticParams at build time — must NOT use cookies().
   // Use the admin (service-role) client which is cookieless. The slug list
@@ -198,7 +193,7 @@ export async function getAllDoctorSlugs(): Promise<string[]> {
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.SUPABASE_SERVICE_ROLE_KEY
   ) {
-    return staticDoctors.map((d) => d.slug)
+    return FALLBACK_SLUGS
   }
   try {
     const supabase = createAdminClient()
@@ -206,12 +201,15 @@ export async function getAllDoctorSlugs(): Promise<string[]> {
       .from("doctors")
       .select("slug")
       .eq("is_published", true)
-    if (error || !data || data.length === 0) {
-      return staticDoctors.map((d) => d.slug)
+    if (error) {
+      console.error("[doctors-db] getAllDoctorSlugs failed:", error.message)
+      return FALLBACK_SLUGS
     }
-    return data.map((d) => d.slug)
-  } catch {
-    return staticDoctors.map((d) => d.slug)
+    const live = (data ?? []).map((d) => d.slug)
+    return live.length > 0 ? live : FALLBACK_SLUGS
+  } catch (err) {
+    console.error("[doctors-db] getAllDoctorSlugs threw:", (err as Error).message)
+    return FALLBACK_SLUGS
   }
 }
 

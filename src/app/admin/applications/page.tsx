@@ -35,18 +35,24 @@ export default async function AdminApplicationsPage() {
       .map((p) => p.doctor_id),
   )
 
-  // Email → "did they sign up?" set. Listing once is fine while user count
-  // is small; switch to a per-email lookup once we cross a few hundred.
+  // For each approved application, we need to know:
+  //   1. did the applicant sign up at all? (email present in auth.users)
+  //   2. did they sign up *via our invite* for THIS application?
+  //      (user_metadata.application_id matches)
+  // We list users once and build both maps. linkApplicationToProfile relies
+  // on (2) to refuse linking a stranger who happens to share the email.
   let signedUpEmails = new Set<string>()
+  const verifiedInviteeAppIds = new Set<string>()
   if ((apps ?? []).some((a) => a.status === "approved")) {
     const { data: usersList } = await admin.auth.admin.listUsers({
       perPage: 200,
     })
-    signedUpEmails = new Set(
-      (usersList?.users ?? [])
-        .map((u) => u.email?.toLowerCase())
-        .filter((v): v is string => !!v),
-    )
+    for (const u of usersList?.users ?? []) {
+      const email = u.email?.toLowerCase()
+      if (email) signedUpEmails.add(email)
+      const appId = (u.user_metadata as { application_id?: string })?.application_id
+      if (appId) verifiedInviteeAppIds.add(appId)
+    }
   }
 
   return (
@@ -60,12 +66,14 @@ export default async function AdminApplicationsPage() {
           const signedUp = signedUpEmails.has(
             (a.applicant_email ?? "").toLowerCase(),
           )
+          const verifiedInvitee = verifiedInviteeAppIds.has(a.id)
           return (
             <ApplicationCard
               key={a.id}
               app={a}
               linked={linked}
               signedUp={signedUp}
+              verifiedInvitee={verifiedInvitee}
             />
           )
         })}
@@ -106,10 +114,12 @@ function ApplicationCard({
   app,
   linked,
   signedUp,
+  verifiedInvitee,
 }: {
   app: ApplicationRow
   linked: boolean
   signedUp: boolean
+  verifiedInvitee: boolean
 }) {
   const channels = [
     { label: "병원 홈페이지", has: app.has_hospital_website, url: app.hospital_website },
@@ -169,7 +179,7 @@ function ApplicationCard({
               <span className="rounded-md bg-green-100 text-green-800 px-2.5 py-1 text-xs font-medium">
                 ✓ 프로필 연결 완료
               </span>
-            ) : signedUp ? (
+            ) : signedUp && verifiedInvitee ? (
               <form action={linkApplicationToProfile}>
                 <input type="hidden" name="id" value={app.id} />
                 <SubmitButton
@@ -180,6 +190,13 @@ function ApplicationCard({
                   프로필 연결
                 </SubmitButton>
               </form>
+            ) : signedUp && !verifiedInvitee ? (
+              <span
+                className="rounded-md bg-yellow-100 text-yellow-800 px-2.5 py-1 text-xs"
+                title="같은 이메일로 가입된 사용자는 있지만 우리가 보낸 invite 토큰이 확인되지 않았어요. 수동으로 확인 후 linkDoctorToProfile 사용."
+              >
+                ⚠ 검증 실패
+              </span>
             ) : (
               <span
                 className="rounded-md bg-gray-100 text-gray-600 px-2.5 py-1 text-xs"

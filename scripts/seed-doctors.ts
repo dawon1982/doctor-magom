@@ -9,7 +9,7 @@
 import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { createClient } from "@supabase/supabase-js"
-import { doctors as staticDoctors } from "../src/lib/data/doctors"
+import { doctors as staticDoctors } from "./seed-data"
 
 // Minimal .env.local loader so we don't add a dotenv dep.
 function loadEnv(file: string) {

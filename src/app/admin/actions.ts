@@ -180,13 +180,40 @@ export async function approveApplication(formData: FormData) {
     return
   }
 
-  // 2) Send Supabase invite to the applicant.
+  // 2) Send Supabase invite to the applicant. Embed application_id + doctor_id
+  //    in user_metadata so the linker can later verify the user is the one we
+  //    actually invited (and not someone who happens to share the email).
   const h = await headers()
   const proto = h.get("x-forwarded-proto") ?? "https"
   const host = h.get("host") ?? "doctor-magom.vercel.app"
   const redirectTo = `${proto}://${host}/auth/callback?next=/doctor/profile`
+  const inviteMeta = {
+    application_id: id,
+    application_doctor_id: doctor.id,
+  }
 
-  await admin.auth.admin.inviteUserByEmail(app.applicant_email, { redirectTo })
+  const { error: inviteErr } = await admin.auth.admin.inviteUserByEmail(
+    app.applicant_email,
+    { redirectTo, data: inviteMeta },
+  )
+
+  if (inviteErr) {
+    // Most common reason: user already signed up with the same email via /signup
+    // before approval landed. We still want to flag them as the intended invitee
+    // so linkApplicationToProfile can proceed safely — find the existing user
+    // and stamp the same metadata.
+    const { data: usersList } = await admin.auth.admin.listUsers({ perPage: 200 })
+    const existing = usersList?.users.find(
+      (u) => u.email?.toLowerCase() === app.applicant_email.toLowerCase(),
+    )
+    if (existing) {
+      await admin.auth.admin.updateUserById(existing.id, {
+        user_metadata: { ...existing.user_metadata, ...inviteMeta },
+      })
+    } else {
+      console.error("[approveApplication] invite failed:", inviteErr.message)
+    }
+  }
 
   // 3) Mark the application approved + remember which doctor row was created.
   await supabase
@@ -270,6 +297,23 @@ export async function linkApplicationToProfile(formData: FormData) {
     (u) => u.email?.toLowerCase() === app.applicant_email.toLowerCase(),
   )
   if (!user) return
+
+  // Verify this user was the one we actually invited for this application.
+  // `application_id` is set in user_metadata at approveApplication time
+  // (either via inviteUserByEmail or via updateUserById fallback). Without
+  // this check a third party signing up with the same email could be linked.
+  const meta = (user.user_metadata ?? {}) as {
+    application_id?: string
+    application_doctor_id?: string
+  }
+  if (meta.application_id !== appId) {
+    console.error(
+      `[linkApplicationToProfile] user ${user.id} email matches but invite ` +
+        `metadata is missing or for a different application. Use linkDoctorToProfile ` +
+        `(manual) if this is intentional.`,
+    )
+    return
+  }
 
   await admin
     .from("profiles")
