@@ -2,6 +2,7 @@ import Link from "next/link"
 import { ArrowRight, Heart, Video, FileText, Search, Shield, Sparkles } from "lucide-react"
 import { getAllDoctors, getAllVideos, getAllArticles } from "@/lib/data/doctors-db"
 import { DoctorCard } from "@/components/doctor/DoctorCard"
+import { HeroPhotoCarousel } from "@/components/home/HeroPhotoCarousel"
 import { getSiteUrl, SITE_NAME, SITE_TAGLINE } from "@/lib/site"
 
 const HOME_JSON_LD = {
@@ -93,6 +94,17 @@ export default async function Home() {
             의사의 얼굴, 말투, 영상, 글을 먼저 보고<br className="hidden sm:block" />
             나와 잘 맞는 정신건강의학과 선생님을 직접 골라보세요.
           </p>
+
+          <HeroPhotoCarousel
+            doctors={doctors
+              .filter((d) => !!d.photoUrl)
+              .map((d) => ({
+                slug: d.slug,
+                name: d.name,
+                hospital: d.hospital,
+                photoUrl: d.photoUrl,
+              }))}
+          />
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
