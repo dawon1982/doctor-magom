@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og"
 import { getDoctorBySlug } from "@/lib/data/doctors-db"
-import { getSiteUrl } from "@/lib/site"
 
 export const alt = "닥터마음곰 의사 프로필"
 export const size = { width: 1200, height: 630 }
@@ -13,7 +12,6 @@ export default async function DoctorOG({
 }) {
   const { slug } = await params
   const doctor = await getDoctorBySlug(slug)
-  const bearUrl = `${getSiteUrl()}/magom-bear.png`
   if (!doctor) {
     return new ImageResponse(
       (
@@ -57,7 +55,7 @@ export default async function DoctorOG({
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          <img src={bearUrl} alt="" width={48} height={48} />
+          <span style={{ fontSize: "48px" }}>🧸</span>
           <span style={{ fontSize: "26px", fontWeight: 700, letterSpacing: "-0.5px" }}>
             닥터마음곰
           </span>

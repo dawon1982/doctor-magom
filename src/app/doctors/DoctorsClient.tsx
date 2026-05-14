@@ -451,7 +451,7 @@ export default function DoctorsClient({
           </div>
         ) : (
           <div className="text-center py-20">
-            <MagomBear className="h-14 w-14 mx-auto" />
+            <MagomBear className="text-6xl" />
             <p className="mt-4 text-muted-foreground font-medium">검색 결과가 없어요</p>
             <p className="text-sm text-muted-foreground mt-1">다른 검색어나 필터를 시도해보세요</p>
             <button

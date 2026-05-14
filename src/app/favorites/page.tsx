@@ -20,7 +20,7 @@ export default async function FavoritesPage() {
   if (!user) {
     return (
       <div className="mx-auto max-w-xl px-4 py-20 text-center">
-        <MagomBear className="h-12 w-12 mx-auto" />
+        <MagomBear className="text-5xl" />
         <h1 className="text-2xl font-bold mt-3 mb-2">내 즐겨찾기</h1>
         <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
           즐겨찾기 기능을 사용하려면 로그인이 필요해요. 회원가입은 무료이며,

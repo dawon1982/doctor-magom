@@ -82,7 +82,7 @@ export default async function Home() {
 
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6 text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-6">
-            <MagomBear className="h-4 w-4" />
+            <MagomBear className="text-base" />
             <span>정신건강의학과계의 강남언니</span>
           </div>
 
@@ -355,7 +355,7 @@ export default async function Home() {
       {/* ─── CTA 배너 ─── */}
       <section className="py-20 bg-gradient-to-r from-primary/15 via-accent/30 to-secondary/10">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 text-center">
-          <MagomBear className="h-12 w-12 mx-auto" />
+          <MagomBear className="text-5xl" />
           <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold tracking-tight">
             마음이 맞는 선생님을 찾을 때까지,<br />
             닥터마음곰이 함께해요

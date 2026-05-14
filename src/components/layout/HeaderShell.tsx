@@ -15,7 +15,7 @@ export function HeaderShell() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <MagomBear className="h-8 w-8" />
+            <MagomBear className="text-3xl" />
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-bold tracking-tight text-foreground">
                 닥터마음곰

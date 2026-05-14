@@ -4,8 +4,6 @@
  * because callers reference templates by name through `sendEmail()`.
  */
 
-import { getSiteUrl } from "@/lib/site"
-
 export type EmailPayload = { subject: string; html: string; text: string }
 
 export type TemplateName =
@@ -18,7 +16,7 @@ type TemplateFn = (data: Record<string, string>) => EmailPayload
 const wrap = (title: string, body: string) => `
 <!DOCTYPE html>
 <html><body style="font-family:-apple-system,'Noto Sans KR',sans-serif;line-height:1.6;color:#222;max-width:560px;margin:0 auto;padding:32px 24px">
-  <p style="font-size:22px;margin:0 0 16px"><img src="${getSiteUrl()}/magom-bear.png" alt="" width="28" height="28" style="vertical-align:middle;margin-right:6px"> <strong>닥터마음곰</strong></p>
+  <p style="font-size:22px;margin:0 0 16px"><span style="font-size:28px">🧸</span> <strong>닥터마음곰</strong></p>
   <h1 style="font-size:20px;margin:24px 0 12px">${title}</h1>
   ${body}
   <hr style="border:none;border-top:1px solid #eee;margin:32px 0 16px">

@@ -1,5 +1,4 @@
 import { ImageResponse } from "next/og"
-import { getSiteUrl } from "@/lib/site"
 
 export const runtime = "edge"
 export const alt = "닥터마음곰 — 나와 맞는 정신건강의학과 선생님 찾기"
@@ -7,7 +6,6 @@ export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
 export default async function OG() {
-  const bearUrl = `${getSiteUrl()}/magom-bear.png`
   return new ImageResponse(
     (
       <div
@@ -24,7 +22,7 @@ export default async function OG() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          <img src={bearUrl} alt="" width={84} height={84} />
+          <span style={{ fontSize: "84px" }}>🧸</span>
           <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
             <span style={{ fontSize: "44px", fontWeight: 800, letterSpacing: "-1px" }}>
               닥터마음곰

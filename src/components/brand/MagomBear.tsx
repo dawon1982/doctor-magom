@@ -1,27 +1,31 @@
 /**
- * The Dr.마음곰 brand bear — solid blue silhouette extracted from the
- * Framer master design. Used wherever we used to render a 🐻 emoji.
+ * The Dr.마음곰 brand mascot — teddy bear emoji.
  *
- * Tailwind size classes go on `className` (e.g. "h-6 w-6"). The bear PNG
- * has a slight tall aspect (~600×700) but we render as a square — the
- * leading-none + object-contain keeps it crisp at small sizes.
+ * Used wherever we want a friendly "마음곰" visual cue (header, footer,
+ * empty states, hero, etc.). Wrapped in a component so the choice of
+ * mascot lives in one place — change the MASCOT constant to swap.
+ *
+ * Size with Tailwind `text-*` classes via className
+ *   (e.g. `text-2xl`, `text-5xl`). For emoji, font-size controls visual
+ *   size. Height/width are inferred from font metrics.
  */
 type Props = {
   className?: string
-  /** Set false for purely decorative usage (default true → empty alt + aria-hidden). */
+  /** False to expose the mascot to screen readers (rare). */
   decorative?: boolean
-  alt?: string
 }
 
-export function MagomBear({ className = "h-6 w-6", decorative = true, alt }: Props) {
+const MASCOT = "🧸"
+
+export function MagomBear({ className = "text-base", decorative = true }: Props) {
   return (
-    /* eslint-disable-next-line @next/next/no-img-element */
-    <img
-      src="/magom-bear.png"
-      alt={decorative ? "" : alt ?? "닥터마음곰"}
+    <span
+      className={`inline-block leading-none ${className}`}
+      role="img"
+      aria-label={decorative ? undefined : "닥터마음곰"}
       aria-hidden={decorative}
-      className={`inline-block object-contain ${className}`}
-      draggable={false}
-    />
+    >
+      {MASCOT}
+    </span>
   )
 }
