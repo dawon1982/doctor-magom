@@ -85,6 +85,9 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
     return []
   }
   const supabase = createAdminClient()
+  // Three select tiers — try full first, then drop one column at a time so
+  // a single missing migration doesn't strip everything. Order matches the
+  // migration history (010 thumbnail_url → 009 photo_url).
   const fullSelect = `
       id, slug, name, hospital, location, district, region,
       specialties, keywords, target_patients, treatments, bio,
@@ -93,10 +96,15 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
       doctor_videos ( url, title, date, sort_order ),
       doctor_articles ( url, title, date, platform, sort_order, thumbnail_url )
     `
-  // Fallback select without recent columns — used when a pending migration
-  // (009 photo_url, 010 thumbnail_url) hasn't run yet or the PostgREST
-  // schema cache hasn't refreshed.
-  const fallbackSelect = `
+  const noThumbnailSelect = `
+      id, slug, name, hospital, location, district, region,
+      specialties, keywords, target_patients, treatments, bio,
+      hours, lunch_break, closed_days, review_keywords,
+      kakao_url, website_url, photo_placeholder_color, photo_url, is_published,
+      doctor_videos ( url, title, date, sort_order ),
+      doctor_articles ( url, title, date, platform, sort_order )
+    `
+  const legacySelect = `
       id, slug, name, hospital, location, district, region,
       specialties, keywords, target_patients, treatments, bio,
       hours, lunch_break, closed_days, review_keywords,
@@ -105,33 +113,26 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
       doctor_articles ( url, title, date, platform, sort_order )
     `
 
-  // Untype the result so we can swap between full/fallback shapes if the
-  // photo_url column hasn't been migrated yet.
-  let data: Record<string, unknown>[] | null
-  let errorMsg: string | null
-  {
+  async function run(sel: string) {
     const res = await supabase
       .from("doctors")
-      .select(fullSelect)
+      .select(sel)
       .eq("is_published", true)
       .order("created_at", { ascending: true })
-    data = res.data as unknown as Record<string, unknown>[] | null
-    errorMsg = res.error?.message ?? null
+    return {
+      data: res.data as unknown as Record<string, unknown>[] | null,
+      err: res.error?.message ?? null,
+    }
   }
 
-  if (errorMsg && /photo_url|thumbnail_url|column .* does not exist/i.test(errorMsg)) {
-    // Retry without the newest columns so the site keeps working until the
-    // migration lands. Affects 009 (photo_url) and 010 (thumbnail_url).
-    console.warn(
-      "[doctors-db] recent column missing — falling back to legacy select. Run pending migrations.",
-    )
-    const retry = await supabase
-      .from("doctors")
-      .select(fallbackSelect)
-      .eq("is_published", true)
-      .order("created_at", { ascending: true })
-    data = retry.data as unknown as Record<string, unknown>[] | null
-    errorMsg = retry.error?.message ?? null
+  let { data, err: errorMsg } = await run(fullSelect)
+  if (errorMsg && /thumbnail_url/i.test(errorMsg)) {
+    console.warn("[doctors-db] thumbnail_url missing — run migration 010.")
+    ;({ data, err: errorMsg } = await run(noThumbnailSelect))
+  }
+  if (errorMsg && /photo_url/i.test(errorMsg)) {
+    console.warn("[doctors-db] photo_url missing — run migration 009.")
+    ;({ data, err: errorMsg } = await run(legacySelect))
   }
 
   if (errorMsg) {
