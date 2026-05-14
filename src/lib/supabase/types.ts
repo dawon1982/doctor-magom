@@ -66,6 +66,8 @@ export type DoctorArticleRow = {
   date: string | null
   platform: ArticlePlatform
   sort_order: number
+  /** Added in migration 010 — OG/Twitter card preview image */
+  thumbnail_url: string | null
   created_at: string
 }
 

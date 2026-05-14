@@ -11,6 +11,7 @@ export type ArticleContent = {
   title: string
   date?: string
   platform: "naver" | "other"
+  thumbnailUrl?: string
 }
 
 export type Doctor = {
@@ -52,6 +53,7 @@ export type ArticleListItem = {
   title: string
   date?: string
   platform: "naver" | "other"
+  thumbnailUrl?: string
   doctor: string
   hospital: string
   doctorSlug: string
@@ -89,10 +91,11 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
       hours, lunch_break, closed_days, review_keywords,
       kakao_url, website_url, photo_placeholder_color, photo_url, is_published,
       doctor_videos ( url, title, date, sort_order ),
-      doctor_articles ( url, title, date, platform, sort_order )
+      doctor_articles ( url, title, date, platform, sort_order, thumbnail_url )
     `
-  // Fallback select without photo_url — used when migration 009 hasn't run
-  // or the PostgREST schema cache hasn't refreshed yet.
+  // Fallback select without recent columns — used when a pending migration
+  // (009 photo_url, 010 thumbnail_url) hasn't run yet or the PostgREST
+  // schema cache hasn't refreshed.
   const fallbackSelect = `
       id, slug, name, hospital, location, district, region,
       specialties, keywords, target_patients, treatments, bio,
@@ -116,10 +119,11 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
     errorMsg = res.error?.message ?? null
   }
 
-  if (errorMsg && /photo_url|column .* does not exist/i.test(errorMsg)) {
-    // Retry without photo_url so the site keeps working until the migration lands.
+  if (errorMsg && /photo_url|thumbnail_url|column .* does not exist/i.test(errorMsg)) {
+    // Retry without the newest columns so the site keeps working until the
+    // migration lands. Affects 009 (photo_url) and 010 (thumbnail_url).
     console.warn(
-      "[doctors-db] photo_url column missing — falling back to legacy select. Run migration 009.",
+      "[doctors-db] recent column missing — falling back to legacy select. Run pending migrations.",
     )
     const retry = await supabase
       .from("doctors")
@@ -143,7 +147,10 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
       date?: string | null
       sort_order?: number | null
     }
-    type RawArticle = RawVideo & { platform?: string | null }
+    type RawArticle = RawVideo & {
+      platform?: string | null
+      thumbnail_url?: string | null
+    }
     const rawVideos = (row.doctor_videos as RawVideo[] | null) ?? []
     const rawArticles = (row.doctor_articles as RawArticle[] | null) ?? []
     const videos = rawVideos
@@ -165,6 +172,7 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
           | "naver"
           | "other",
         ...(a.date ? { date: a.date } : {}),
+        ...(a.thumbnail_url ? { thumbnailUrl: a.thumbnail_url } : {}),
       }))
 
     const lunchBreak = (row.lunch_break as string | null) ?? null
@@ -285,6 +293,7 @@ export async function getAllArticles(): Promise<ArticleListItem[]> {
       title: a.title,
       platform: a.platform,
       ...(a.date ? { date: a.date } : {}),
+      ...(a.thumbnailUrl ? { thumbnailUrl: a.thumbnailUrl } : {}),
       doctor: d.name,
       hospital: d.hospital,
       doctorSlug: d.slug,

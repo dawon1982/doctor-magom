@@ -296,22 +296,36 @@ export default async function Home() {
                 href={article.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-2xl border border-border bg-card p-5 hover:shadow-md hover:border-primary/30 transition-all"
+                className="group rounded-2xl border border-border bg-card overflow-hidden hover:shadow-md hover:border-primary/30 transition-all"
               >
-                <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center mb-4">
-                  <FileText size={15} className="text-secondary" />
-                </div>
-                <h3 className="font-semibold text-sm leading-snug word-keep group-hover:text-primary transition-colors line-clamp-2">
-                  {article.title}
-                </h3>
-                <div className="mt-3 flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">{article.doctor}</span>
-                  {article.date && (
-                    <>
-                      <span className="text-muted-foreground/40">·</span>
-                      <span className="text-xs text-muted-foreground">{article.date}</span>
-                    </>
+                <div className="relative aspect-[16/9] bg-muted overflow-hidden">
+                  {article.thumbnailUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={article.thumbnailUrl}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <FileText size={28} className="text-muted-foreground/40" />
+                    </div>
                   )}
+                </div>
+                <div className="p-5">
+                  <h3 className="font-semibold text-sm leading-snug word-keep group-hover:text-primary transition-colors line-clamp-2">
+                    {article.title}
+                  </h3>
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{article.doctor}</span>
+                    {article.date && (
+                      <>
+                        <span className="text-muted-foreground/40">·</span>
+                        <span className="text-xs text-muted-foreground">{article.date}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </a>
             ))}

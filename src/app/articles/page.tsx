@@ -45,32 +45,67 @@ export default async function ArticlesPage() {
                 href={article.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-2xl border border-border bg-card p-5 hover:shadow-md hover:border-primary/30 transition-all flex flex-col"
+                className="group rounded-2xl border border-border bg-card hover:shadow-md hover:border-primary/30 transition-all flex flex-col overflow-hidden"
               >
-                <div className="w-9 h-9 rounded-xl bg-secondary/10 flex items-center justify-center mb-4 flex-shrink-0">
-                  <FileText size={16} className="text-secondary" />
+                {/* 대표 이미지 */}
+                <div className="relative aspect-[16/9] bg-muted overflow-hidden">
+                  {article.thumbnailUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={article.thumbnailUrl}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <FileText size={32} className="text-muted-foreground/40" />
+                    </div>
+                  )}
+                  {/* 플랫폼 뱃지 */}
+                  {article.platform === "naver" && (
+                    <span className="absolute top-2 left-2 rounded-full bg-[#03C75A] text-white text-[10px] font-bold px-2 py-0.5 shadow">
+                      네이버
+                    </span>
+                  )}
                 </div>
 
-                <h3 className="font-semibold text-sm leading-snug word-keep group-hover:text-primary transition-colors line-clamp-3 flex-1 mb-4">
-                  {article.title}
-                </h3>
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="font-semibold text-sm leading-snug word-keep group-hover:text-primary transition-colors line-clamp-3 flex-1 mb-4">
+                    {article.title}
+                  </h3>
 
-                <div className="flex items-center justify-between mt-auto">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-bold"
-                      style={{ backgroundColor: doctor?.photoPlaceholderColor ?? "#D4895A" }}
-                    >
-                      {article.doctor[0]}
+                  <div className="flex items-center justify-between mt-auto">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold overflow-hidden"
+                        style={{ backgroundColor: doctor?.photoPlaceholderColor ?? "#D4895A" }}
+                      >
+                        {doctor?.photoUrl ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={doctor.photoUrl}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          article.doctor[0]
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium">{article.doctor}</p>
+                        {article.date && (
+                          <p className="text-[10px] text-muted-foreground">
+                            {article.date}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs font-medium">{article.doctor}</p>
-                      {article.date && (
-                        <p className="text-[10px] text-muted-foreground">{article.date}</p>
-                      )}
-                    </div>
+                    <ExternalLink
+                      size={13}
+                      className="text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0"
+                    />
                   </div>
-                  <ExternalLink size={13} className="text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
                 </div>
               </a>
             )

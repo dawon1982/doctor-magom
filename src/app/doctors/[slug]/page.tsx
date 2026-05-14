@@ -460,24 +460,40 @@ export default async function DoctorDetailPage({ params }: Props) {
               </div>
               <h2 className="font-bold text-base">기고글</h2>
             </div>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {doctor.articles.map((article, i) => (
                 <a
                   key={`${article.url}-${i}`}
                   href={article.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center justify-between rounded-xl border border-border p-4 hover:border-primary/30 hover:bg-muted/30 transition-all"
+                  className="group flex gap-3 rounded-xl border border-border overflow-hidden hover:border-primary/30 hover:shadow-sm transition-all"
                 >
-                  <div>
-                    <p className="text-sm font-medium group-hover:text-primary transition-colors word-keep">
+                  <div className="relative aspect-square w-24 sm:w-28 flex-shrink-0 bg-muted overflow-hidden">
+                    {article.thumbnailUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={article.thumbnailUrl}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <FileText size={22} className="text-muted-foreground/40" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 py-3 pr-3 flex flex-col justify-center">
+                    <p className="text-sm font-medium group-hover:text-primary transition-colors word-keep line-clamp-3">
                       {article.title}
                     </p>
                     {article.date && (
-                      <p className="text-xs text-muted-foreground mt-0.5">{article.date}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {article.date}
+                      </p>
                     )}
                   </div>
-                  <FileText size={14} className="text-muted-foreground flex-shrink-0 ml-3" />
                 </a>
               ))}
             </div>
