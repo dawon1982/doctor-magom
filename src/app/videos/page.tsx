@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Video } from "lucide-react"
+import { Play } from "lucide-react"
 import { getAllVideos, getAllDoctors } from "@/lib/data/doctors-db"
 import type { Metadata } from "next"
 
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 function getYouTubeId(url: string) {
   const match = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([^&\n?#]+)/
+    /(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([^&\n?#]+)/,
   )
   return match ? match[1] : null
 }
@@ -40,75 +40,89 @@ export default async function VideosPage() {
       </div>
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* 쇼츠/릴스 스타일 세로형 그리드 */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
           {videos.map((video) => {
             const videoId = getYouTubeId(video.url)
             const doctor = doctors.find((d) => d.slug === video.doctorSlug)
 
             return (
-              <div key={video.url} className="rounded-2xl border border-border bg-card overflow-hidden hover:shadow-md transition-shadow group">
-                {/* 썸네일 */}
-                <a href={video.url} target="_blank" rel="noopener noreferrer">
+              <a
+                key={video.url}
+                href={video.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block"
+              >
+                <div className="relative aspect-[9/16] rounded-xl overflow-hidden bg-muted hover:shadow-lg transition-shadow">
                   {videoId ? (
-                    <div className="relative aspect-video bg-muted overflow-hidden">
-                      <img
-                        src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
-                        alt={video.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center group-hover:bg-red-500 transition-colors">
-                          <Video size={18} className="text-white ml-1" />
-                        </div>
-                      </div>
-                    </div>
+                    <img
+                      src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+                      alt={video.title}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
                   ) : (
-                    <div className="aspect-video bg-muted flex items-center justify-center">
-                      <Video size={32} className="text-muted-foreground" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Play size={40} className="text-muted-foreground" />
                     </div>
                   )}
-                </a>
 
-                <div className="p-4">
-                  <a href={video.url} target="_blank" rel="noopener noreferrer">
-                    <h3 className="font-semibold text-sm leading-snug word-keep group-hover:text-primary transition-colors line-clamp-2 mb-3">
+                  {/* 재생 버튼 오버레이 */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center group-hover:bg-red-500/90 group-hover:scale-110 transition-all duration-200">
+                      <Play size={20} className="text-white ml-1" fill="white" />
+                    </div>
+                  </div>
+
+                  {/* 하단 그라데이션 + 제목 + 의사 */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent pt-12 pb-3 px-3">
+                    <h3 className="font-semibold text-xs sm:text-sm text-white leading-snug word-keep line-clamp-2 mb-2 drop-shadow">
                       {video.title}
                     </h3>
-                  </a>
-
-                  <div className="flex items-center justify-between">
-                    <Link href={`/doctors/${video.doctorSlug}`} className="flex items-center gap-2 group/doctor">
-                      <div
-                        className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold"
+                    <Link
+                      href={`/doctors/${video.doctorSlug}`}
+                      className="inline-flex items-center gap-1.5 max-w-full"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <span
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 overflow-hidden"
                         style={{ backgroundColor: doctor?.photoPlaceholderColor ?? "#D4895A" }}
                       >
-                        {video.doctor[0]}
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium group-hover/doctor:text-primary transition-colors">{video.doctor}</p>
-                        <p className="text-[10px] text-muted-foreground">{video.hospital}</p>
-                      </div>
+                        {doctor?.photoUrl ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={doctor.photoUrl}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          video.doctor[0]
+                        )}
+                      </span>
+                      <span className="text-[11px] text-white/90 font-medium truncate hover:text-primary transition-colors">
+                        {video.doctor}
+                      </span>
                     </Link>
-                    {video.date && (
-                      <span className="text-xs text-muted-foreground">{video.date}</span>
-                    )}
                   </div>
                 </div>
-              </div>
+              </a>
             )
           })}
         </div>
 
         {videos.length === 0 && (
           <div className="text-center py-20">
-            <Video size={40} className="text-muted-foreground mx-auto mb-4" />
+            <Play size={40} className="text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">아직 등록된 영상이 없어요</p>
           </div>
         )}
 
         {/* 더 많은 영상 준비 중 */}
         <div className="mt-12 rounded-2xl border border-dashed border-border p-8 text-center">
-          <p className="text-sm font-medium text-muted-foreground mb-1">더 많은 영상이 곧 추가돼요</p>
+          <p className="text-sm font-medium text-muted-foreground mb-1">
+            더 많은 영상이 곧 추가돼요
+          </p>
           <p className="text-xs text-muted-foreground">
             선생님이 입점하면 자동으로 영상이 업데이트됩니다
           </p>

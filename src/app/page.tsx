@@ -64,7 +64,7 @@ export default async function Home() {
     getAllArticles(),
   ])
   const featuredDoctors = doctors.slice(0, 6)
-  const featuredVideos = videos.slice(0, 3)
+  const featuredVideos = videos.slice(0, 5)
   const featuredArticles = articles.slice(0, 3)
 
   return (
@@ -226,7 +226,7 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
             {featuredVideos.map((video) => {
               const videoId = getYouTubeId(video.url)
               return (
@@ -235,29 +235,34 @@ export default async function Home() {
                   href={video.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group rounded-2xl border border-border bg-card overflow-hidden hover:shadow-md transition-shadow"
+                  className="group block"
                 >
-                  {videoId ? (
-                    <div className="relative aspect-video bg-muted overflow-hidden">
+                  <div className="relative aspect-[9/16] rounded-xl overflow-hidden bg-muted hover:shadow-lg transition-shadow">
+                    {videoId ? (
                       <img
-                        src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+                        src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
                         alt={video.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
                       />
+                    ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center group-hover:bg-primary transition-colors">
-                          <Video size={18} className="text-white ml-1" />
-                        </div>
+                        <Video size={32} className="text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center group-hover:bg-red-500/90 group-hover:scale-110 transition-all duration-200">
+                        <Video size={20} className="text-white ml-0.5" />
                       </div>
                     </div>
-                  ) : (
-                    <div className="aspect-video bg-muted flex items-center justify-center">
-                      <Video size={32} className="text-muted-foreground" />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent pt-12 pb-3 px-3">
+                      <p className="font-semibold text-xs sm:text-sm text-white leading-snug word-keep line-clamp-2 mb-1 drop-shadow">
+                        {video.title}
+                      </p>
+                      <p className="text-[11px] text-white/85 truncate">
+                        {video.doctor}
+                      </p>
                     </div>
-                  )}
-                  <div className="p-4">
-                    <p className="font-semibold text-sm leading-snug word-keep line-clamp-2">{video.title}</p>
-                    <p className="text-xs text-muted-foreground mt-1.5">{video.doctor} · {video.hospital}</p>
                   </div>
                 </a>
               )

@@ -60,7 +60,8 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  icons: { icon: "/favicon.ico" },
+  // Icon is generated dynamically by src/app/icon.tsx — Next handles the
+  // <link rel="icon"> tag automatically, no need to set it here.
 }
 
 export default function RootLayout({
