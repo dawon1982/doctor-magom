@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { ChevronLeft } from "lucide-react"
 import { getAllDoctors, type Doctor } from "@/lib/data/doctors-db"
 import { OpenStatusBadge } from "@/components/doctor/OpenStatusBadge"
+import { MagomBear } from "@/components/brand/MagomBear"
 
 export const metadata: Metadata = {
   title: "선생님 비교",
@@ -47,7 +48,7 @@ export default async function ComparePage({
 
       {picked.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-muted/30 py-16 px-6 text-center">
-          <p className="text-3xl mb-3">🐻</p>
+          <MagomBear className="h-10 w-10 mx-auto mb-3" />
           <p className="text-sm text-muted-foreground mb-4">
             아직 비교할 선생님이 없어요. 선생님 목록에서 “비교하기” 체크박스로
             골라보세요.

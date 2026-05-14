@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ArrowRight, Video, Heart, Search, MessageCircle, Star, Zap } from "lucide-react"
 import type { Metadata } from "next"
+import { MagomBear } from "@/components/brand/MagomBear"
 
 export const metadata: Metadata = {
   title: "서비스 소개",
@@ -71,7 +72,7 @@ export default function AboutPage() {
       {/* 헤더 */}
       <section className="bg-gradient-to-b from-accent/30 to-background py-16 sm:py-20">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
-          <span className="text-5xl">🐻</span>
+          <MagomBear className="h-14 w-14 mx-auto" />
           <h1 className="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">
             닥터마음곰 소개
           </h1>

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { matchDoctorsAction, type SerializedPick } from "./actions"
+import { MagomBear } from "@/components/brand/MagomBear"
 
 const REGIONS = ["서울", "경기", "인천", "기타"] as const
 const TARGETS = [
@@ -61,8 +62,8 @@ export default function MatchForm() {
     return (
       <div className="space-y-6">
         <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
-          <p className="text-sm font-semibold text-primary mb-1">
-            🐻 닥터마음곰의 추천
+          <p className="text-sm font-semibold text-primary mb-1 inline-flex items-center gap-1.5">
+            <MagomBear className="h-4 w-4" /> 닥터마음곰의 추천
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
             아래 {result.picks.length}분이 가장 잘 맞아 보여요. 추천 이유를 읽고
@@ -244,9 +245,15 @@ export default function MatchForm() {
       <button
         type="submit"
         disabled={pending || query.trim().length < 10}
-        className="w-full rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-1.5"
       >
-        {pending ? "🐻 닥터마음곰이 고민 중..." : "✨ 의사 추천받기"}
+        {pending ? (
+          <>
+            <MagomBear className="h-4 w-4 brightness-0 invert" /> 닥터마음곰이 고민 중...
+          </>
+        ) : (
+          <>✨ 의사 추천받기</>
+        )}
       </button>
 
       <p className="text-xs text-muted-foreground text-center leading-relaxed">

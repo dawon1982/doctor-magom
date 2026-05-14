@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Mail } from "lucide-react"
+import { MagomBear } from "@/components/brand/MagomBear"
 
 export function Footer() {
   return (
@@ -9,7 +10,7 @@ export function Footer() {
           {/* 브랜드 */}
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">🐻</span>
+              <MagomBear className="h-7 w-7" />
               <span className="font-bold text-lg tracking-tight">닥터마음곰</span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed word-keep max-w-xs">

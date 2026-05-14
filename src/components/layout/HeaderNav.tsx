@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import { UserMenu } from "@/components/auth/UserMenu"
+import { MagomBear } from "@/components/brand/MagomBear"
 import type { Role } from "@/lib/supabase/types"
 
 const navItems: { href: string; label: string; highlight?: boolean }[] = [
@@ -31,16 +32,7 @@ export function HeaderNav({ user }: { user: HeaderUser }) {
         <div className="flex h-16 items-center justify-between">
           {/* 로고 */}
           <Link href="/" className="flex items-center gap-2 group">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/magom-bear.png"
-              alt=""
-              aria-hidden
-              width={32}
-              height={32}
-              className="h-8 w-8 transition-transform group-hover:scale-110"
-              draggable={false}
-            />
+            <MagomBear className="h-8 w-8 transition-transform group-hover:scale-110" />
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-bold tracking-tight text-foreground">닥터마음곰</span>
               <span className="text-[10px] text-muted-foreground font-medium">Dr. Magom</span>

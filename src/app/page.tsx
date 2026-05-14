@@ -3,6 +3,7 @@ import { ArrowRight, Heart, Video, FileText, Search, Shield, Sparkles } from "lu
 import { getAllDoctors, getAllVideos, getAllArticles } from "@/lib/data/doctors-db"
 import { DoctorCard } from "@/components/doctor/DoctorCard"
 import { HeroPhotoCarousel } from "@/components/home/HeroPhotoCarousel"
+import { MagomBear } from "@/components/brand/MagomBear"
 import { getSiteUrl, SITE_NAME, SITE_TAGLINE } from "@/lib/site"
 
 const HOME_JSON_LD = {
@@ -81,7 +82,7 @@ export default async function Home() {
 
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6 text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-6">
-            <span>🐻</span>
+            <MagomBear className="h-4 w-4" />
             <span>정신건강의학과계의 강남언니</span>
           </div>
 
@@ -354,7 +355,7 @@ export default async function Home() {
       {/* ─── CTA 배너 ─── */}
       <section className="py-20 bg-gradient-to-r from-primary/15 via-accent/30 to-secondary/10">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 text-center">
-          <span className="text-4xl">🐻</span>
+          <MagomBear className="h-12 w-12 mx-auto" />
           <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold tracking-tight">
             마음이 맞는 선생님을 찾을 때까지,<br />
             닥터마음곰이 함께해요

@@ -5,6 +5,7 @@ import { Search, SlidersHorizontal, X, ArrowRight, User, Building2, Tag, MapPin 
 import Link from "next/link"
 import { DoctorCard } from "@/components/doctor/DoctorCard"
 import { FavoriteButton } from "@/components/doctor/FavoriteButton"
+import { MagomBear } from "@/components/brand/MagomBear"
 import type { Doctor } from "@/lib/data/doctors-db"
 
 const MAX_COMPARE = 3
@@ -450,7 +451,7 @@ export default function DoctorsClient({
           </div>
         ) : (
           <div className="text-center py-20">
-            <span className="text-5xl">🐻</span>
+            <MagomBear className="h-14 w-14 mx-auto" />
             <p className="mt-4 text-muted-foreground font-medium">검색 결과가 없어요</p>
             <p className="text-sm text-muted-foreground mt-1">다른 검색어나 필터를 시도해보세요</p>
             <button

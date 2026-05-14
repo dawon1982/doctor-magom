@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { MagomBear } from "@/components/brand/MagomBear"
 
 /**
  * Fully static Suspense fallback for the session-aware <Header />.
@@ -14,16 +15,7 @@ export function HeaderShell() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/magom-bear.png"
-              alt=""
-              aria-hidden
-              width={32}
-              height={32}
-              className="h-8 w-8"
-              draggable={false}
-            />
+            <MagomBear className="h-8 w-8" />
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-bold tracking-tight text-foreground">
                 닥터마음곰
