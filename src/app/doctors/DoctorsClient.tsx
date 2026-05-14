@@ -81,10 +81,62 @@ const styleKeywords = [
   "지지적인", "공감적인", "명쾌한", "격려하는", "현실적 조언", "분석적인", "경청하는", "따뜻한",
 ]
 
-const regionPills = [
-  "서울", "강남구", "서초구", "용산구", "송파구", "강서구", "금천구",
-  "경기", "안양시", "동두천시", "구리시",
+// 경기 북부 — 경기북부청 관할 10개 시군. 나머지 경기 시군은 모두 남부로 본다.
+const GYEONGGI_NORTH_CITIES = [
+  "고양", "구리", "남양주", "동두천", "양주", "의정부", "파주", "포천", "가평", "연천",
 ]
+function isGyeonggiNorth(district: string): boolean {
+  return GYEONGGI_NORTH_CITIES.some((city) => district.startsWith(city))
+}
+
+// 지역 필터 그룹 정의.
+//   - label: pill에 보이는 텍스트
+//   - districts: 이 그룹에 속하는 정확한 서울 자치구 이름들
+//   - regionAll: 전체 region이 곧 이 그룹인 경우 (서울 전체, 인천)
+//   - gyeonggi: "north" | "south" — 경기 남부/북부 자동 판별
+const REGION_GROUPS: Array<{
+  label: string
+  districts?: readonly string[]
+  regionAll?: "서울" | "경기" | "인천" | "기타"
+  gyeonggi?: "north" | "south"
+}> = [
+  { label: "서울 전체", regionAll: "서울" },
+  { label: "강남·서초", districts: ["강남구", "서초구"] },
+  { label: "송파·강동", districts: ["송파구", "강동구"] },
+  { label: "용산·영등포·동작", districts: ["용산구", "영등포구", "동작구"] },
+  { label: "관악·구로·금천", districts: ["관악구", "구로구", "금천구"] },
+  { label: "강서·양천", districts: ["강서구", "양천구"] },
+  { label: "마포·은평·서대문", districts: ["마포구", "은평구", "서대문구"] },
+  { label: "종로·중구·성북", districts: ["종로구", "중구", "성북구"] },
+  { label: "동대문·성동·광진", districts: ["동대문구", "성동구", "광진구"] },
+  { label: "강북·도봉·노원·중랑", districts: ["강북구", "도봉구", "노원구", "중랑구"] },
+  { label: "경기 남부", gyeonggi: "south" },
+  { label: "경기 북부", gyeonggi: "north" },
+  { label: "인천", regionAll: "인천" },
+]
+
+function doctorInRegionGroup(
+  d: Doctor,
+  g: (typeof REGION_GROUPS)[number],
+): boolean {
+  if (g.regionAll) return d.region === g.regionAll
+  if (g.districts) return g.districts.includes(d.district)
+  if (g.gyeonggi) {
+    if (d.region !== "경기") return false
+    return g.gyeonggi === "north"
+      ? isGyeonggiNorth(d.district)
+      : !isGyeonggiNorth(d.district)
+  }
+  return false
+}
+
+/** Find which region-filter group contains a Seoul district. */
+function groupLabelForDistrict(district: string): string | null {
+  for (const g of REGION_GROUPS) {
+    if (g.districts?.includes(district)) return g.label
+  }
+  return null
+}
 
 export default function DoctorsClient({
   doctors,
@@ -139,7 +191,12 @@ export default function DoctorsClient({
     }
     if (s.type === "specialty") setSelectedSpecialty(s.value)
     else if (s.type === "keyword") setSelectedStyle(s.value)
-    else if (s.type === "district") setSelectedRegion(s.value)
+    else if (s.type === "district") {
+      // Translate district name → matching group label
+      const groupLabel = groupLabelForDistrict(s.value)
+      if (groupLabel) setSelectedRegion(groupLabel)
+      else setSearch(s.value)
+    }
     else setSearch(s.value)
   }
 
@@ -178,8 +235,10 @@ export default function DoctorsClient({
         d.district.includes(search) ||
         d.specialties.some((s) => s.includes(search))
 
-      const matchRegion =
-        !selectedRegion || d.region === selectedRegion || d.district === selectedRegion
+      const regionGroup = selectedRegion
+        ? REGION_GROUPS.find((g) => g.label === selectedRegion)
+        : null
+      const matchRegion = !regionGroup || doctorInRegionGroup(d, regionGroup)
       const matchSpecialty =
         !selectedSpecialty || d.specialties.includes(selectedSpecialty)
       const matchStyle = !selectedStyle || d.keywords.includes(selectedStyle)
@@ -217,7 +276,7 @@ export default function DoctorsClient({
             <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
             <input
               type="text"
-              placeholder="이름, 병원, 전문분야로 검색..."
+              placeholder="이름, 병원, 전문분야 등 자연어로 검색하면 AI가 검색을 도와드려요"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value)
@@ -309,17 +368,21 @@ export default function DoctorsClient({
             <div>
               <p className="text-sm font-semibold mb-3">지역</p>
               <div className="flex flex-wrap gap-2">
-                {regionPills.map((region) => (
+                {REGION_GROUPS.map((group) => (
                   <button
-                    key={region}
-                    onClick={() => setSelectedRegion(selectedRegion === region ? null : region)}
+                    key={group.label}
+                    onClick={() =>
+                      setSelectedRegion(
+                        selectedRegion === group.label ? null : group.label,
+                      )
+                    }
                     className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
-                      selectedRegion === region
+                      selectedRegion === group.label
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
                     }`}
                   >
-                    {region}
+                    {group.label}
                   </button>
                 ))}
               </div>
