@@ -47,66 +47,69 @@ export default async function VideosPage() {
             const doctor = doctors.find((d) => d.slug === video.doctorSlug)
 
             return (
-              <a
-                key={video.url}
-                href={video.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group block"
-              >
-                <div className="relative aspect-[9/16] rounded-xl overflow-hidden bg-muted hover:shadow-lg transition-shadow">
-                  {videoId ? (
-                    <img
-                      src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
-                      alt={video.title}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Play size={40} className="text-muted-foreground" />
-                    </div>
-                  )}
+              <div key={video.url} className="group">
+                <a
+                  href={video.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <div className="relative aspect-[9/16] rounded-xl overflow-hidden bg-muted hover:shadow-lg transition-shadow">
+                    {videoId ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+                        alt={video.title}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Play size={40} className="text-muted-foreground" />
+                      </div>
+                    )}
 
-                  {/* 재생 버튼 오버레이 */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center group-hover:bg-red-500/90 group-hover:scale-110 transition-all duration-200">
-                      <Play size={20} className="text-white ml-1" fill="white" />
+                    {/* 재생 버튼 오버레이 */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center group-hover:bg-red-500/90 group-hover:scale-110 transition-all duration-200">
+                        <Play size={20} className="text-white ml-1" fill="white" />
+                      </div>
+                    </div>
+
+                    {/* 하단 그라데이션 + 제목 */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent pt-12 pb-3 px-3 pointer-events-none">
+                      <h3 className="font-semibold text-xs sm:text-sm text-white leading-snug word-keep line-clamp-2 drop-shadow">
+                        {video.title}
+                      </h3>
                     </div>
                   </div>
+                </a>
 
-                  {/* 하단 그라데이션 + 제목 + 의사 */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent pt-12 pb-3 px-3">
-                    <h3 className="font-semibold text-xs sm:text-sm text-white leading-snug word-keep line-clamp-2 mb-2 drop-shadow">
-                      {video.title}
-                    </h3>
-                    <Link
-                      href={`/doctors/${video.doctorSlug}`}
-                      className="inline-flex items-center gap-1.5 max-w-full"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <span
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 overflow-hidden"
-                        style={{ backgroundColor: doctor?.photoPlaceholderColor ?? "#D4895A" }}
-                      >
-                        {doctor?.photoUrl ? (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={doctor.photoUrl}
-                            alt=""
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          video.doctor[0]
-                        )}
-                      </span>
-                      <span className="text-[11px] text-white/90 font-medium truncate hover:text-primary transition-colors">
-                        {video.doctor}
-                      </span>
-                    </Link>
-                  </div>
-                </div>
-              </a>
+                {/* 의사 이름은 카드 하단에 별도 링크 (중첩 anchor 방지) */}
+                <Link
+                  href={`/doctors/${video.doctorSlug}`}
+                  className="mt-2 inline-flex items-center gap-1.5 max-w-full hover:text-primary transition-colors"
+                >
+                  <span
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 overflow-hidden"
+                    style={{ backgroundColor: doctor?.photoPlaceholderColor ?? "#D4895A" }}
+                  >
+                    {doctor?.photoUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={doctor.photoUrl}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      video.doctor[0]
+                    )}
+                  </span>
+                  <span className="text-xs text-muted-foreground font-medium truncate">
+                    {video.doctor}
+                  </span>
+                </Link>
+              </div>
             )
           })}
         </div>
