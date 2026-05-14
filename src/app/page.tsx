@@ -237,7 +237,7 @@ export default async function Home() {
                   rel="noopener noreferrer"
                   className="group block"
                 >
-                  <div className="relative aspect-[9/16] rounded-xl overflow-hidden bg-muted hover:shadow-lg transition-shadow">
+                  <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-muted hover:shadow-lg transition-shadow">
                     {videoId ? (
                       <img
                         src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}

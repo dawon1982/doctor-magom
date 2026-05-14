@@ -54,7 +54,7 @@ export default async function VideosPage() {
                   rel="noopener noreferrer"
                   className="block"
                 >
-                  <div className="relative aspect-[9/16] rounded-xl overflow-hidden bg-muted hover:shadow-lg transition-shadow">
+                  <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-muted hover:shadow-lg transition-shadow">
                     {videoId ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img
