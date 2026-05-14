@@ -276,7 +276,7 @@ export default function DoctorsClient({
             <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
             <input
               type="text"
-              placeholder="이름, 병원, 전문분야 등 자연어로 검색하면 AI가 검색을 도와드려요"
+              placeholder="지역, 이름, 병원, 전문분야로 검색"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value)
