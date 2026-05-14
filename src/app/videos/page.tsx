@@ -41,7 +41,7 @@ export default async function VideosPage() {
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-10">
         {/* 쇼츠/릴스 스타일 세로형 그리드 */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {videos.map((video) => {
             const videoId = getYouTubeId(video.url)
             const doctor = doctors.find((d) => d.slug === video.doctorSlug)

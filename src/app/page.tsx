@@ -64,7 +64,7 @@ export default async function Home() {
     getAllArticles(),
   ])
   const featuredDoctors = doctors.slice(0, 6)
-  const featuredVideos = videos.slice(0, 5)
+  const featuredVideos = videos.slice(0, 3)
   const featuredArticles = articles.slice(0, 3)
 
   return (
@@ -226,7 +226,7 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {featuredVideos.map((video) => {
               const videoId = getYouTubeId(video.url)
               return (
