@@ -7,6 +7,7 @@ import DoctorContentManager, {
   type ContentArticle,
 } from "@/components/admin/DoctorContentManager"
 import { updateDoctor } from "@/app/admin/actions"
+import { DoctorAdminControls } from "@/components/admin/DoctorAdminControls"
 
 
 export default async function EditDoctorPage({
@@ -78,17 +79,24 @@ export default async function EditDoctorPage({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-bold">{data.name}</h1>
           <p className="text-sm text-muted-foreground">{data.hospital}</p>
         </div>
-        <Link
-          href="/admin/doctors"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← 목록
-        </Link>
+        <div className="flex items-center gap-3">
+          <DoctorAdminControls
+            doctorId={id}
+            doctorName={data.name}
+            isPublished={!!data.is_published}
+          />
+          <Link
+            href="/admin/doctors"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            ← 목록
+          </Link>
+        </div>
       </div>
       <DoctorForm
         initial={initial}

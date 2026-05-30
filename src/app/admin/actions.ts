@@ -133,6 +133,57 @@ export async function togglePublished(formData: FormData) {
   invalidateDoctor(data.slug)
   invalidateAllDoctors()
   revalidatePath("/admin/doctors")
+  revalidatePath(`/admin/doctors/${id}`)
+}
+
+/**
+ * Permanently remove a doctor row. Cascades through doctor_videos,
+ * doctor_articles, doctor_reviews, favorites, etc. via the foreign-key
+ * `on delete cascade` we set on those tables.
+ *
+ * Storage assets (the doctor's portrait under `doctor-photos/<id>/...`)
+ * are also cleaned up so the bucket doesn't pile up. Best-effort —
+ * a storage failure does not block the DB delete.
+ */
+export async function deleteDoctor(id: string) {
+  const admin = createAdminClient()
+
+  // 1) Storage cleanup — list everything under the doctor's folder and remove.
+  try {
+    const { data: files } = await admin.storage
+      .from("doctor-photos")
+      .list(id, { limit: 100 })
+    const paths = (files ?? []).map((f) => `${id}/${f.name}`)
+    if (paths.length) {
+      await admin.storage.from("doctor-photos").remove(paths)
+    }
+  } catch {
+    // ignore — DB delete still proceeds
+  }
+
+  // 2) Detach any profile that points at this doctor so the user keeps their
+  //    account but loses their doctor role.
+  await admin
+    .from("profiles")
+    .update({ role: "patient", doctor_id: null })
+    .eq("doctor_id", id)
+
+  // 3) Detach any application that approved into this doctor row.
+  await admin
+    .from("doctor_applications")
+    .update({ approved_doctor_id: null })
+    .eq("approved_doctor_id", id)
+
+  // 4) Now delete the doctor row. Children cascade via FK.
+  const { error } = await admin.from("doctors").delete().eq("id", id)
+  if (error) {
+    console.error("[deleteDoctor] failed:", error.message)
+    return
+  }
+
+  invalidateAllDoctors()
+  revalidatePath("/admin/doctors")
+  redirect("/admin/doctors")
 }
 
 export async function approveApplication(formData: FormData) {

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Eye, EyeOff } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { togglePublished } from "@/app/admin/actions"
 import { SubmitButton } from "@/components/ui/SubmitButton"
@@ -53,14 +54,23 @@ export default async function AdminDoctorsPage() {
                       value={d.is_published ? "false" : "true"}
                     />
                     <SubmitButton
-                      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition active:scale-95 ${
                         d.is_published
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-600"
+                          ? "bg-green-100 text-green-800 hover:bg-green-200"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                       }`}
                       pendingLabel="…"
+                      title={d.is_published ? "클릭해서 숨김" : "클릭해서 공개"}
                     >
-                      {d.is_published ? "공개" : "숨김"}
+                      {d.is_published ? (
+                        <>
+                          <Eye size={12} /> 공개
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff size={12} /> 숨김
+                        </>
+                      )}
                     </SubmitButton>
                   </form>
                 </td>
