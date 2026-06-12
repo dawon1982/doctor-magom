@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import { UserMenu } from "@/components/auth/UserMenu"
 import { MagomBear } from "@/components/brand/MagomBear"
+import { ThemeToggle } from "@/components/theme/ThemeToggle"
 import type { Role } from "@/lib/supabase/types"
 
 const navItems: { href: string; label: string; highlight?: boolean }[] = [
@@ -60,6 +61,7 @@ export function HeaderNav({ user }: { user: HeaderUser }) {
 
           {/* 데스크탑 CTA */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             <Link
               href="/apply"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -86,14 +88,17 @@ export function HeaderNav({ user }: { user: HeaderUser }) {
             )}
           </div>
 
-          {/* 모바일 메뉴 버튼 */}
-          <button
-            className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="메뉴"
-          >
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {/* 모바일 우측 — 테마 토글 + 메뉴 버튼 */}
+          <div className="md:hidden flex items-center gap-1">
+            <ThemeToggle />
+            <button
+              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="메뉴"
+            >
+              {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
       </div>
 

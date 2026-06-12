@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { MapPin, PlayCircle, FileText } from "lucide-react"
 import type { Doctor } from "@/lib/data/doctors-db"
 import { OpenStatusBadge } from "@/components/doctor/OpenStatusBadge"
@@ -21,12 +22,12 @@ export function DoctorCard({ doctor, compact = false }: Props) {
           style={doctor.photoUrl ? undefined : { backgroundColor: doctor.photoPlaceholderColor }}
         >
           {doctor.photoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={doctor.photoUrl}
               alt={`${doctor.name} 선생님 프로필 사진`}
-              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
-              loading="lazy"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
               draggable={false}
             />
           ) : (

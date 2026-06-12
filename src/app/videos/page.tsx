@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Play } from "lucide-react"
 import { getAllVideos, getAllDoctors } from "@/lib/data/doctors-db"
 import type { Metadata } from "next"
@@ -56,12 +57,12 @@ export default async function VideosPage() {
                 >
                   <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-muted hover:shadow-lg transition-shadow">
                     {videoId ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
+                      <Image
                         src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
                         alt={video.title}
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -95,10 +96,11 @@ export default async function VideosPage() {
                     style={{ backgroundColor: doctor?.photoPlaceholderColor ?? "#D4895A" }}
                   >
                     {doctor?.photoUrl ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
+                      <Image
                         src={doctor.photoUrl}
                         alt=""
+                        width={20}
+                        height={20}
                         className="w-full h-full object-cover"
                       />
                     ) : (

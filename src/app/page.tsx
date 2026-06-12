@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowRight, Heart, Video, FileText, Search, Shield, Sparkles } from "lucide-react"
 import { getAllDoctors, getAllVideos, getAllArticles } from "@/lib/data/doctors-db"
 import { DoctorCard } from "@/components/doctor/DoctorCard"
@@ -239,11 +240,12 @@ export default async function Home() {
                 >
                   <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-muted hover:shadow-lg transition-shadow">
                     {videoId ? (
-                      <img
+                      <Image
                         src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
                         alt={video.title}
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">

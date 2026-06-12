@@ -2,8 +2,8 @@
 name: 닥터마음곰
 description: 정신건강의학과 의사-환자 매칭 플랫폼 (정신과계 강남언니, 의사 15명)
 status: active
-progress: 77
-updated: 2026-05-26
+progress: 78
+updated: 2026-05-30
 tags: [nextjs, vercel, supabase, ai]
 ---
 
@@ -20,11 +20,24 @@ tags: [nextjs, vercel, supabase, ai]
 - [x] Patient features — 진료시간/비교/자동완성/즐겨찾기/리뷰
 - [x] Phase A — 매칭 분석 대시보드 (/admin/match-queries)
 - [x] Vercel 계정 이전 — scanme → leedawon82-7956 (orgId team_RAgM3gz... + auto-deploy webhook 검증)
+- [x] admin 편집 페이지 — publish 토글 라벨 명확화 + 의사 삭제 버튼
 - [ ] magom.io 도메인 재구입 + Resend 활성화
 - [ ] Google OAuth 추가 검토
 - [ ] Phase 4 — Q&A 게시판 / 커뮤니티 / 광고 슬롯
 
 # 개발 로그
+
+## 2026-05-30
+
+- admin/doctors 편집 페이지: publish 토글 라벨 명확화 + 삭제 버튼 추가
+
+## 2026-05-28
+
+- README 전면 갱신 + `.env.local.example` 추가 (gitignore 예외 처리)
+
+## 2026-05-27
+
+- STATUS.md를 git 추적에 포함 (진행 상황 추적)
 
 ## 2026-05-26
 

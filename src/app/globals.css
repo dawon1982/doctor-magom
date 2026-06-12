@@ -89,6 +89,36 @@
   --sage-teal-light: oklch(0.88 0.04 190);
 }
 
+.dark {
+  /* 따뜻한 다크 — 차가운 회색 대신 갈색 기 도는 어두운 톤 */
+  --background: oklch(0.18 0.012 50);
+  --foreground: oklch(0.93 0.01 75);
+  --card: oklch(0.22 0.014 50);
+  --card-foreground: oklch(0.93 0.01 75);
+  --popover: oklch(0.22 0.014 50);
+  --popover-foreground: oklch(0.93 0.01 75);
+  --primary: oklch(0.68 0.13 50);
+  --primary-foreground: oklch(0.18 0.02 40);
+  --secondary: oklch(0.64 0.07 190);
+  --secondary-foreground: oklch(0.15 0.02 40);
+  --muted: oklch(0.27 0.014 50);
+  --muted-foreground: oklch(0.7 0.02 60);
+  --accent: oklch(0.32 0.03 55);
+  --accent-foreground: oklch(0.93 0.02 70);
+  --destructive: oklch(0.62 0.21 25);
+  --border: oklch(0.3 0.012 50);
+  --input: oklch(0.3 0.012 50);
+  --ring: oklch(0.68 0.13 50);
+  --sidebar: oklch(0.2 0.012 50);
+  --sidebar-foreground: oklch(0.93 0.01 75);
+  --sidebar-primary: oklch(0.68 0.13 50);
+  --sidebar-primary-foreground: oklch(0.18 0.02 40);
+  --sidebar-accent: oklch(0.27 0.014 50);
+  --sidebar-accent-foreground: oklch(0.93 0.01 75);
+  --sidebar-border: oklch(0.3 0.012 50);
+  --sidebar-ring: oklch(0.68 0.13 50);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

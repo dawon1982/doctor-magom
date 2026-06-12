@@ -6,6 +6,7 @@ import { headers } from "next/headers"
 import { z } from "zod"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { requireRole } from "@/lib/auth/dal"
 import { DoctorAdminSchema } from "@/lib/validation/auth"
 import { invalidateAllDoctors, invalidateDoctor } from "@/lib/data/doctors-db"
 import { sendEmail } from "@/lib/email/resend"
@@ -75,6 +76,7 @@ function toDbRow(parsed: z.infer<typeof DoctorAdminSchema>) {
 }
 
 export async function createDoctor(_prev: { error?: string }, formData: FormData) {
+  await requireRole("admin")
   const parsed = parseDoctorForm(formData)
   if (!parsed.success)
     return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요" }
@@ -98,6 +100,7 @@ export async function updateDoctor(
   _prev: { error?: string },
   formData: FormData,
 ) {
+  await requireRole("admin")
   const parsed = parseDoctorForm(formData)
   if (!parsed.success)
     return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요" }
@@ -119,6 +122,7 @@ export async function updateDoctor(
 }
 
 export async function togglePublished(formData: FormData) {
+  await requireRole("admin")
   const id = String(formData.get("id"))
   const next = formData.get("next") === "true"
 
@@ -146,6 +150,9 @@ export async function togglePublished(formData: FormData) {
  * a storage failure does not block the DB delete.
  */
 export async function deleteDoctor(id: string) {
+  // Critical: this uses the service-role client (bypasses RLS), so the
+  // admin gate MUST be enforced here in code — the DB policy won't help.
+  await requireRole("admin")
   const admin = createAdminClient()
 
   // 1) Storage cleanup — list everything under the doctor's folder and remove.
@@ -187,6 +194,7 @@ export async function deleteDoctor(id: string) {
 }
 
 export async function approveApplication(formData: FormData) {
+  await requireRole("admin")
   const id = String(formData.get("id"))
 
   const supabase = await createClient()
@@ -291,6 +299,7 @@ export async function approveApplication(formData: FormData) {
 }
 
 export async function rejectApplication(formData: FormData) {
+  await requireRole("admin")
   const id = String(formData.get("id"))
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -306,6 +315,7 @@ export async function rejectApplication(formData: FormData) {
 }
 
 export async function linkDoctorToProfile(formData: FormData) {
+  await requireRole("admin")
   // Manual fallback — admin supplies profileId + doctorId directly.
   const profileId = String(formData.get("profileId"))
   const doctorId = String(formData.get("doctorId"))
@@ -330,6 +340,7 @@ export async function linkDoctorToProfile(formData: FormData) {
  * later) or if the application has no approved_doctor_id.
  */
 export async function linkApplicationToProfile(formData: FormData) {
+  await requireRole("admin")
   const appId = String(formData.get("id"))
 
   const supabase = await createClient()

@@ -4,6 +4,7 @@ import "./globals.css"
 import { Header } from "@/components/layout/Header"
 import { HeaderShell } from "@/components/layout/HeaderShell"
 import { Footer } from "@/components/layout/Footer"
+import { ThemeProvider } from "@/components/theme/ThemeProvider"
 import { getSiteUrl, SITE_NAME, SITE_TAGLINE } from "@/lib/site"
 
 const SITE_URL = getSiteUrl()
@@ -70,15 +71,17 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko" className="h-full antialiased">
+    <html lang="ko" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
-        <Suspense fallback={<HeaderShell />}>
-          <Header />
-        </Suspense>
-        <main className="flex-1">
-          <Suspense fallback={null}>{children}</Suspense>
-        </main>
-        <Footer />
+        <ThemeProvider>
+          <Suspense fallback={<HeaderShell />}>
+            <Header />
+          </Suspense>
+          <main className="flex-1">
+            <Suspense fallback={null}>{children}</Suspense>
+          </main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   )

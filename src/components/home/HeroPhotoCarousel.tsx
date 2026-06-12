@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 
 type HeroDoctor = {
   slug: string
@@ -57,16 +58,18 @@ export function HeroPhotoCarousel({ doctors }: { doctors: HeroDoctor[] }) {
                 zIndex: isActive ? 10 : 1,
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={d.photoUrl!}
                 alt={`${d.name} 선생님`}
+                width={56}
+                height={56}
+                sizes="56px"
+                priority={i < 4}
                 className={`w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover ring-2 transition-all duration-500 ${
                   isActive
                     ? "ring-primary shadow-lg shadow-primary/30"
                     : "ring-background shadow-sm"
                 }`}
-                loading={i < 4 ? "eager" : "lazy"}
                 draggable={false}
               />
             </Link>

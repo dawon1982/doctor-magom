@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
+import { OutboundLink } from "@/components/doctor/OutboundLink"
 import { MapPin, Clock, Phone, Globe, PlayCircle, FileText, ChevronLeft, Star } from "lucide-react"
 import {
   getDoctorBySlug,
@@ -213,15 +215,17 @@ export default async function DoctorDetailPage({ params }: Props) {
           <div className="flex gap-5 items-start">
             {/* 아바타 */}
             <div
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex-shrink-0 flex items-center justify-center text-white text-3xl font-bold shadow-md overflow-hidden"
+              className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex-shrink-0 flex items-center justify-center text-white text-3xl font-bold shadow-md overflow-hidden"
               style={doctor.photoUrl ? undefined : { backgroundColor: doctor.photoPlaceholderColor }}
             >
               {doctor.photoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={doctor.photoUrl}
                   alt={`${doctor.name} 선생님 프로필 사진`}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="96px"
+                  priority
+                  className="object-cover"
                 />
               ) : (
                 doctor.name[0]
@@ -377,24 +381,24 @@ export default async function DoctorDetailPage({ params }: Props) {
             <h2 className="font-bold text-base mb-4">예약 · 정보</h2>
             <div className="flex flex-col sm:flex-row gap-3">
               {doctor.kakaoUrl && (
-                <a
+                <OutboundLink
                   href={doctor.kakaoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  doctorId={doctor.id}
+                  kind="kakao"
                   className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#FEE500] text-[#3A1D1D] font-semibold py-3 text-sm hover:opacity-90 transition-opacity"
                 >
                   <Phone size={15} /> 카카오 예약하기
-                </a>
+                </OutboundLink>
               )}
               {doctor.websiteUrl && (
-                <a
+                <OutboundLink
                   href={doctor.websiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  doctorId={doctor.id}
+                  kind="website"
                   className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-border bg-muted text-foreground font-medium py-3 text-sm hover:bg-muted/70 transition-colors"
                 >
                   <Globe size={15} /> 병원 홈페이지
-                </a>
+                </OutboundLink>
               )}
             </div>
           </div>

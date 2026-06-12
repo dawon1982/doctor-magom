@@ -146,6 +146,8 @@ export type MatchQueryRow = {
   output_tokens: number | null
   cached_read_tokens: number | null
   error: string | null
+  /** Added in migration 011 — salted SHA-256 of requester IP for rate limiting. */
+  ip_hash: string | null
 }
 
 /** Added in migration 007 — patient bookmarks. Composite PK (user_id, doctor_id). */
@@ -166,6 +168,14 @@ export type DoctorReviewRow = {
   is_hidden_by_admin: boolean
   created_at: string
   updated_at: string
+}
+
+/** Added in migration 012 — outbound conversion clicks. */
+export type DoctorOutboundClickRow = {
+  id: string
+  doctor_id: string
+  kind: string
+  created_at: string
 }
 
 /**
@@ -240,6 +250,13 @@ export type Database = {
         Insert: Partial<DoctorReviewRow> &
           Pick<DoctorReviewRow, "user_id" | "doctor_id" | "rating" | "body">
         Update: Partial<DoctorReviewRow>
+        Relationships: []
+      }
+      doctor_outbound_clicks: {
+        Row: DoctorOutboundClickRow
+        Insert: Partial<DoctorOutboundClickRow> &
+          Pick<DoctorOutboundClickRow, "doctor_id" | "kind">
+        Update: Partial<DoctorOutboundClickRow>
         Relationships: []
       }
     }

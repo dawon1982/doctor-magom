@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, MousePointerClick } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { togglePublished } from "@/app/admin/actions"
 import { SubmitButton } from "@/components/ui/SubmitButton"
@@ -11,6 +11,21 @@ export default async function AdminDoctorsPage() {
     .from("doctors")
     .select("id, slug, name, hospital, district, region, is_published")
     .order("created_at", { ascending: true })
+
+  // Outbound-click totals per doctor (conversion signal). Graceful if the
+  // table (migration 012) isn't applied yet.
+  const clickCounts = new Map<string, number>()
+  try {
+    const { data: clicks } = await supabase
+      .from("doctor_outbound_clicks")
+      .select("doctor_id")
+    for (const c of clicks ?? []) {
+      const id = c.doctor_id as string
+      clickCounts.set(id, (clickCounts.get(id) ?? 0) + 1)
+    }
+  } catch {
+    // table missing — column simply shows 0
+  }
 
   return (
     <div>
@@ -32,6 +47,11 @@ export default async function AdminDoctorsPage() {
               <th className="px-4 py-3">병원</th>
               <th className="px-4 py-3">지역</th>
               <th className="px-4 py-3">slug</th>
+              <th className="px-4 py-3">
+                <span className="inline-flex items-center gap-1" title="예약·홈페이지 클릭 수">
+                  <MousePointerClick size={12} /> 클릭
+                </span>
+              </th>
               <th className="px-4 py-3">공개</th>
               <th className="px-4 py-3"></th>
             </tr>
@@ -45,6 +65,9 @@ export default async function AdminDoctorsPage() {
                   {d.region} {d.district}
                 </td>
                 <td className="px-4 py-3 font-mono text-xs">{d.slug}</td>
+                <td className="px-4 py-3 tabular-nums text-muted-foreground">
+                  {clickCounts.get(d.id) ?? 0}
+                </td>
                 <td className="px-4 py-3">
                   <form action={togglePublished}>
                     <input type="hidden" name="id" value={d.id} />
@@ -86,7 +109,7 @@ export default async function AdminDoctorsPage() {
             ))}
             {!doctors?.length && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                   등록된 의사가 없어요.
                 </td>
               </tr>
