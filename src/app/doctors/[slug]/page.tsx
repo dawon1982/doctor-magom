@@ -2,7 +2,18 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { OutboundLink } from "@/components/doctor/OutboundLink"
-import { MapPin, Clock, Phone, Globe, PlayCircle, FileText, ChevronLeft, Star } from "lucide-react"
+import {
+  MapPin,
+  Clock,
+  Phone,
+  Globe,
+  PlayCircle,
+  FileText,
+  ChevronLeft,
+  Star,
+  CalendarCheck,
+  MessageCircle,
+} from "lucide-react"
 import {
   getDoctorBySlug,
   getAllDoctorSlugs,
@@ -17,6 +28,8 @@ import { getSessionUser } from "@/lib/auth/dal"
 import { getMyFavoriteDoctorIds } from "@/lib/actions/favorites"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { jsonLdHtml } from "@/lib/jsonld"
+import { toOpeningHoursSpecification } from "@/lib/schema-hours"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -43,6 +56,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       type: "profile",
       url: `${getSiteUrl()}/doctors/${slug}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${doctor.name} | 닥터마음곰`,
+      description,
     },
   }
 }
@@ -132,8 +150,29 @@ function buildPhysicianJsonLd(
       reviewBody: r.body.slice(0, 300),
     }))
   }
-  return {
-    "@context": "https://schema.org",
+  const address = {
+    "@type": "PostalAddress",
+    addressCountry: "KR",
+    addressRegion: doctor.region,
+    addressLocality: doctor.district,
+    streetAddress: doctor.location,
+  }
+  const openingHours = toOpeningHoursSpecification(doctor.hours)
+
+  const clinic = {
+    "@type": "MedicalClinic",
+    "@id": `${url}#clinic`,
+    name: doctor.hospital,
+    medicalSpecialty: "Psychiatric",
+    address,
+    url: doctor.websiteUrl || url,
+    ...(doctor.phone ? { telephone: doctor.phone } : {}),
+    ...(openingHours.length
+      ? { openingHoursSpecification: openingHours }
+      : {}),
+  }
+
+  const physician = {
     "@type": "Physician",
     "@id": url,
     url,
@@ -142,20 +181,35 @@ function buildPhysicianJsonLd(
     image: doctor.photoUrl || `${url}/opengraph-image`,
     description: doctor.bio || undefined,
     knowsAbout: doctor.specialties,
-    address: {
-      "@type": "PostalAddress",
-      addressCountry: "KR",
-      addressRegion: doctor.region,
-      addressLocality: doctor.district,
-      streetAddress: doctor.location,
-    },
-    worksFor: {
-      "@type": "MedicalOrganization",
-      name: doctor.hospital,
-    },
-    sameAs: [doctor.websiteUrl, doctor.kakaoUrl].filter(Boolean),
+    address,
+    ...(doctor.phone ? { telephone: doctor.phone } : {}),
+    worksFor: { "@id": `${url}#clinic` },
+    sameAs: [
+      doctor.websiteUrl,
+      doctor.kakaoUrl,
+      doctor.naverBookingUrl,
+    ].filter(Boolean),
     ...(aggregateRating ? { aggregateRating } : {}),
     ...(reviewItems ? { review: reviewItems } : {}),
+  }
+
+  const breadcrumb = {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "홈", item: base },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "선생님 찾기",
+        item: `${base}/doctors`,
+      },
+      { "@type": "ListItem", position: 3, name: doctor.name, item: url },
+    ],
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [physician, clinic, breadcrumb],
   }
 }
 
@@ -191,13 +245,25 @@ export default async function DoctorDetailPage({ params }: Props) {
   }))
 
   const jsonLd = buildPhysicianJsonLd(doctor, getSiteUrl(), reviewsResult)
+  const hasContact = Boolean(
+    doctor.phone ||
+      doctor.naverBookingUrl ||
+      doctor.kakaoUrl ||
+      doctor.websiteUrl,
+  )
+  const primaryContact = doctor.phone
+    ? ({ kind: "phone", href: `tel:${doctor.phone.replace(/[^0-9+]/g, "")}`, label: "전화로 예약" } as const)
+    : doctor.naverBookingUrl
+      ? ({ kind: "naver", href: doctor.naverBookingUrl, label: "네이버 예약" } as const)
+      : doctor.kakaoUrl
+        ? ({ kind: "kakao", href: doctor.kakaoUrl, label: "카카오 예약하기" } as const)
+        : null
 
   return (
     <div className="min-h-screen bg-background">
       <script
         type="application/ld+json"
-        // JSON.stringify with no replacer/spaces — fine for raw structured data
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
       {/* 뒤로가기 */}
       <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-6">
@@ -209,7 +275,9 @@ export default async function DoctorDetailPage({ params }: Props) {
         </Link>
       </div>
 
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 pb-16">
+      <div
+        className={`mx-auto max-w-4xl px-4 sm:px-6 ${primaryContact ? "pb-28 sm:pb-16" : "pb-16"}`}
+      >
         {/* ─── 프로필 헤더 ─── */}
         <div className="mt-6 rounded-2xl border border-border bg-card p-6 sm:p-8">
           <div className="flex gap-5 items-start">
@@ -348,46 +416,64 @@ export default async function DoctorDetailPage({ params }: Props) {
             </div>
           </div>
 
-          {/* ─── 환자 후기 키워드 ─── */}
+          {/* ─── 진료 스타일 키워드 ─── */}
           <div className="rounded-2xl border border-border bg-card p-6">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Star size={15} className="text-primary" />
               </div>
-              <h2 className="font-bold text-base">환자 후기 키워드</h2>
+              <h2 className="font-bold text-base">진료 스타일 키워드</h2>
             </div>
-            <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
               {doctor.reviewKeywords.map((rk) => (
-                <div key={rk.text}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm word-keep">{rk.text}</span>
-                    <span className="text-sm font-bold text-primary ml-2 flex-shrink-0">{rk.count}명</span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-primary/60 transition-all"
-                      style={{ width: `${Math.min((rk.count / 45) * 100, 100)}%` }}
-                    />
-                  </div>
-                </div>
+                <span
+                  key={rk.text}
+                  className="rounded-full border border-border bg-muted/60 px-3 py-1.5 text-sm word-keep"
+                >
+                  {rk.text}
+                </span>
               ))}
             </div>
+            <p className="mt-4 text-xs text-muted-foreground">
+              선생님이 소개한 진료 스타일을 정리한 것으로, 환자 후기 집계 결과가
+              아니며 치료 효과를 보장하지 않습니다.
+            </p>
           </div>
         </div>
 
-        {/* ─── 링크들 ─── */}
-        {(doctor.kakaoUrl || doctor.websiteUrl) && (
-          <div className="mt-4 rounded-2xl border border-border bg-card p-6">
-            <h2 className="font-bold text-base mb-4">예약 · 정보</h2>
-            <div className="flex flex-col sm:flex-row gap-3">
+        {/* ─── 예약 · 정보 ─── */}
+        <div className="mt-4 rounded-2xl border border-border bg-card p-6">
+          <h2 className="font-bold text-base mb-4">예약 · 정보</h2>
+          {hasContact ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {doctor.phone && (
+                <OutboundLink
+                  href={`tel:${doctor.phone.replace(/[^0-9+]/g, "")}`}
+                  doctorId={doctor.id}
+                  kind="phone"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground font-semibold py-3 text-sm hover:opacity-90 transition-opacity"
+                >
+                  <Phone size={15} /> 전화로 예약 ({doctor.phone})
+                </OutboundLink>
+              )}
+              {doctor.naverBookingUrl && (
+                <OutboundLink
+                  href={doctor.naverBookingUrl}
+                  doctorId={doctor.id}
+                  kind="naver"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-[#03C75A] text-white font-semibold py-3 text-sm hover:opacity-90 transition-opacity"
+                >
+                  <CalendarCheck size={15} /> 네이버 예약
+                </OutboundLink>
+              )}
               {doctor.kakaoUrl && (
                 <OutboundLink
                   href={doctor.kakaoUrl}
                   doctorId={doctor.id}
                   kind="kakao"
-                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#FEE500] text-[#3A1D1D] font-semibold py-3 text-sm hover:opacity-90 transition-opacity"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-[#FEE500] text-[#3A1D1D] font-semibold py-3 text-sm hover:opacity-90 transition-opacity"
                 >
-                  <Phone size={15} /> 카카오 예약하기
+                  <MessageCircle size={15} /> 카카오 예약하기
                 </OutboundLink>
               )}
               {doctor.websiteUrl && (
@@ -395,14 +481,37 @@ export default async function DoctorDetailPage({ params }: Props) {
                   href={doctor.websiteUrl}
                   doctorId={doctor.id}
                   kind="website"
-                  className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-border bg-muted text-foreground font-medium py-3 text-sm hover:bg-muted/70 transition-colors"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-border bg-muted text-foreground font-medium py-3 text-sm hover:bg-muted/70 transition-colors"
                 >
                   <Globe size={15} /> 병원 홈페이지
                 </OutboundLink>
               )}
             </div>
-          </div>
-        )}
+          ) : (
+            // Without a phone/Naver/Kakao/website link this page would be a dead
+            // end, so send the patient somewhere useful instead.
+            <div className="text-sm text-muted-foreground">
+              <p>
+                아직 예약 연락처가 등록되지 않았어요. 병원 이름으로 검색하시거나
+                다른 선생님을 살펴보세요.
+              </p>
+              <div className="mt-3 flex flex-col sm:flex-row gap-3">
+                <Link
+                  href={`/doctors?region=${encodeURIComponent(doctor.region)}`}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-border bg-muted py-3 text-sm font-medium text-foreground hover:bg-muted/70 transition-colors"
+                >
+                  {doctor.region} 지역 선생님 보기
+                </Link>
+                <Link
+                  href="/match"
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+                >
+                  AI로 추천받기
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ─── 유튜브 영상 ─── */}
         {doctor.videos.length > 0 && (
@@ -426,10 +535,12 @@ export default async function DoctorDetailPage({ params }: Props) {
                   >
                     {videoId ? (
                       <div className="relative aspect-video bg-muted overflow-hidden">
-                        <img
+                        <Image
                           src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
                           alt={video.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          fill
+                          sizes="(max-width: 640px) 100vw, 50vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center group-hover:bg-red-500 transition-colors">
@@ -535,6 +646,20 @@ export default async function DoctorDetailPage({ params }: Props) {
           </Link>
         </div>
       </div>
+
+      {/* 모바일 고정 예약 바 — 상세 페이지는 스크롤이 길어 CTA가 화면 밖으로 밀린다 */}
+      {primaryContact && (
+        <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur px-4 py-3">
+          <OutboundLink
+            href={primaryContact.href}
+            doctorId={doctor.id}
+            kind={primaryContact.kind}
+            className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+          >
+            <Phone size={16} /> {primaryContact.label}
+          </OutboundLink>
+        </div>
+      )}
     </div>
   )
 }

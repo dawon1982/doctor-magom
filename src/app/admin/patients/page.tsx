@@ -23,8 +23,8 @@ export default async function AdminPatientsPage() {
         )}
       </div>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="rounded-xl border border-border bg-card overflow-x-auto">
+        <table className="w-full min-w-[760px] text-sm">
           <thead className="bg-muted/40 text-left text-xs uppercase">
             <tr>
               <th className="px-4 py-3">이메일</th>
@@ -52,7 +52,9 @@ export default async function AdminPatientsPage() {
                 </td>
                 <td className="px-4 py-3">
                   {r.marketing_consent ? (
-                    <span className="text-xs text-green-700">예</span>
+                    <span className="text-xs text-green-700 dark:text-green-400">
+                      예
+                    </span>
                   ) : (
                     <span className="text-xs text-muted-foreground">-</span>
                   )}

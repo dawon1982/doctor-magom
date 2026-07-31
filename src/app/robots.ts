@@ -17,6 +17,10 @@ export default function robots(): MetadataRoute.Robots {
           "/onboarding",
           "/login",
           "/signup",
+          // ?ids= combinations are effectively infinite and hold no unique
+          // content of their own.
+          "/compare",
+          "/favorites",
         ],
       },
     ],

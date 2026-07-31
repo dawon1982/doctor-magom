@@ -6,6 +6,22 @@ import { DoctorCard } from "@/components/doctor/DoctorCard"
 import { HeroPhotoCarousel } from "@/components/home/HeroPhotoCarousel"
 import { MagomBear } from "@/components/brand/MagomBear"
 import { getSiteUrl, SITE_NAME, SITE_TAGLINE } from "@/lib/site"
+import { jsonLdHtml } from "@/lib/jsonld"
+
+const prejudiceItems = [
+  {
+    myth: "정신과 가면 기록이 남아서 불이익이 생긴다?",
+    fact: "진료 기록은 법적으로 보호되며, 생명보험 등 일부 예외를 제외하면 외부에 공개되지 않습니다.",
+  },
+  {
+    myth: "정신과는 심하게 아픈 사람만 가는 곳이다?",
+    fact: "스트레스, 수면 문제, 집중력 저하 등 일상적인 어려움도 정신과에서 도움받을 수 있습니다.",
+  },
+  {
+    myth: "한번 약을 먹으면 평생 끊지 못한다?",
+    fact: "정신과 약은 대부분 필요한 기간만 복용하며, 의사와 상의하며 조절합니다.",
+  },
+]
 
 const HOME_JSON_LD = {
   "@context": "https://schema.org",
@@ -17,6 +33,15 @@ const HOME_JSON_LD = {
       url: getSiteUrl(),
       logo: `${getSiteUrl()}/opengraph-image`,
       description: SITE_TAGLINE,
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${getSiteUrl()}#faq`,
+      mainEntity: prejudiceItems.map((item) => ({
+        "@type": "Question",
+        name: item.myth,
+        acceptedAnswer: { "@type": "Answer", text: item.fact },
+      })),
     },
     {
       "@type": "WebSite",
@@ -35,21 +60,6 @@ const HOME_JSON_LD = {
     },
   ],
 }
-
-const prejudiceItems = [
-  {
-    myth: "정신과 가면 기록이 남아서 불이익이 생긴다?",
-    fact: "진료 기록은 법적으로 보호되며, 생명보험 등 일부 예외를 제외하면 외부에 공개되지 않습니다.",
-  },
-  {
-    myth: "정신과는 심하게 아픈 사람만 가는 곳이다?",
-    fact: "스트레스, 수면 문제, 집중력 저하 등 일상적인 어려움도 정신과에서 도움받을 수 있습니다.",
-  },
-  {
-    myth: "한번 약을 먹으면 평생 끊지 못한다?",
-    fact: "정신과 약은 대부분 필요한 기간만 복용하며, 의사와 상의하며 조절합니다.",
-  },
-]
 
 function getYouTubeId(url: string) {
   const match = url.match(
@@ -72,7 +82,7 @@ export default async function Home() {
     <div className="flex flex-col">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(HOME_JSON_LD) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(HOME_JSON_LD) }}
       />
       {/* ─── Hero ─── */}
       <section className="relative overflow-hidden bg-gradient-to-b from-accent/40 via-background to-background pt-16 pb-20 sm:pt-24 sm:pb-28">
@@ -125,8 +135,8 @@ export default async function Home() {
 
           <div className="mt-14 grid grid-cols-3 gap-4 max-w-sm mx-auto">
             {[
-              { num: "15+", label: "등록 선생님" },
-              { num: "5+", label: "영상·기고글" },
+              { num: `${doctors.length}`, label: "등록 선생님" },
+              { num: `${videos.length + articles.length}`, label: "영상·기고글" },
               { num: "무료", label: "이용료" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">

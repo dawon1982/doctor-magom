@@ -23,12 +23,12 @@ export default async function AdminLayout({
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           관리자
         </p>
-        <nav className="flex md:flex-col gap-1 text-sm">
+        <nav className="flex md:flex-col gap-1 text-sm overflow-x-auto md:overflow-x-visible -mx-1 px-1">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-md px-3 py-2 hover:bg-accent transition"
+              className="shrink-0 whitespace-nowrap rounded-md px-3 py-2 hover:bg-accent transition"
             >
               {item.label}
             </Link>

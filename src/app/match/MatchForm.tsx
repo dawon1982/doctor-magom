@@ -4,6 +4,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { matchDoctorsAction, type SerializedPick } from "./actions"
 import { MagomBear } from "@/components/brand/MagomBear"
+import { CrisisNotice } from "@/components/safety/CrisisNotice"
 
 const REGIONS = ["서울", "경기", "인천", "기타"] as const
 const TARGETS = [
@@ -133,16 +134,19 @@ export default function MatchForm() {
           ))}
         </ul>
 
-        <div className="flex items-center justify-between pt-2">
+        <CrisisNotice />
+
+        <div className="flex items-center justify-between gap-4 pt-2">
           <button
             type="button"
             onClick={reset}
-            className="text-sm text-muted-foreground hover:text-foreground"
+            className="text-sm text-muted-foreground hover:text-foreground whitespace-nowrap"
           >
             ← 다시 검색
           </button>
-          <p className="text-xs text-muted-foreground">
-            추천은 참고용이에요. 실제 진료는 의사와 직접 상담하시는 게 좋아요.
+          <p className="text-xs text-muted-foreground text-right">
+            추천은 참고용이며 의학적 진단·치료를 대체하지 않습니다. 실제 진료는
+            의사와 직접 상담하세요.
           </p>
         </div>
       </div>
@@ -152,13 +156,14 @@ export default function MatchForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label htmlFor="match-query" className="block text-sm font-medium mb-2">
           어떤 상황이세요?{" "}
           <span className="text-xs text-muted-foreground font-normal">
             (증상·상황·원하는 스타일을 자유롭게 적어주세요)
           </span>
         </label>
         <textarea
+          id="match-query"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           rows={6}
@@ -195,13 +200,14 @@ export default function MatchForm() {
 
       <div className="grid sm:grid-cols-2 gap-4 pt-2">
         <div>
-          <label className="block text-sm font-medium mb-1.5">
+          <label htmlFor="match-region" className="block text-sm font-medium mb-1.5">
             선호 지역{" "}
             <span className="text-xs text-muted-foreground font-normal">
               (선택)
             </span>
           </label>
           <select
+            id="match-region"
             value={region}
             onChange={(e) => setRegion(e.target.value)}
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
@@ -215,13 +221,14 @@ export default function MatchForm() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1.5">
+          <label htmlFor="match-target" className="block text-sm font-medium mb-1.5">
             환자 유형{" "}
             <span className="text-xs text-muted-foreground font-normal">
               (선택)
             </span>
           </label>
           <select
+            id="match-target"
             value={targetPatient}
             onChange={(e) => setTargetPatient(e.target.value)}
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
@@ -237,8 +244,18 @@ export default function MatchForm() {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
+        <div
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+        >
+          <p>{error}</p>
+          {/* AI 실패가 막다른 길이 되지 않도록 직접 찾는 경로를 함께 제공한다 */}
+          <Link
+            href="/doctors"
+            className="mt-2 inline-block font-semibold underline"
+          >
+            직접 선생님 목록에서 찾아보기 →
+          </Link>
         </div>
       )}
 
@@ -257,9 +274,18 @@ export default function MatchForm() {
       </button>
 
       <p className="text-xs text-muted-foreground text-center leading-relaxed">
-        AI가 등록된 의사 프로필을 분석해 맞는 분을 골라드려요.<br />
-        익명으로 처리되며 개인정보는 저장하지 않아요.
+        AI가 등록된 의사 프로필을 분석해 맞는 분을 골라드려요. 추천은 참고용이며
+        의학적 진단·치료를 대체하지 않습니다.<br />
+        회원 정보와 연결하지 않는 익명 형태로 처리하지만, 서비스 개선을 위해
+        입력하신 내용은 저장됩니다.{" "}
+        <Link href="/privacy" className="underline hover:text-foreground">
+          개인정보처리방침
+        </Link>
       </p>
+
+      <div className="pt-1">
+        <CrisisNotice compact />
+      </div>
     </form>
   )
 }

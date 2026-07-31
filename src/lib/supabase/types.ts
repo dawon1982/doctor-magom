@@ -38,6 +38,9 @@ export type DoctorRow = {
   review_keywords: ReviewKeyword[]
   kakao_url: string | null
   website_url: string | null
+  /** Added in migration 013 — phone/Naver are the primary booking channels in KR */
+  phone: string | null
+  naver_booking_url: string | null
   /** Added in migration 005 */
   youtube_channel_url: string | null
   photo_placeholder_color: string

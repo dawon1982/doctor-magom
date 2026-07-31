@@ -30,11 +30,14 @@ export function OutboundLink({
     }
   }
 
+  // tel: must stay in the same tab — a _blank dialer link opens a blank tab
+  // on desktop and is inconsistent on mobile browsers.
+  const isTel = href.startsWith("tel:")
+
   return (
     <a
       href={href}
-      target="_blank"
-      rel="noopener noreferrer"
+      {...(isTel ? {} : { target: "_blank", rel: "noopener noreferrer" })}
       onClick={onClick}
       className={className}
     >

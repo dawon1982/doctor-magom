@@ -13,11 +13,14 @@ import { createAdminClient } from "@/lib/supabase/admin"
  */
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET
-  if (secret) {
-    const auth = req.headers.get("authorization")
-    if (auth !== `Bearer ${secret}`) {
-      return new NextResponse("Unauthorized", { status: 401 })
-    }
+  // Fail closed: without the secret this route was an open, unauthenticated
+  // handle on the database that also leaked the doctor count.
+  if (!secret) {
+    console.error("[cron/keepalive] CRON_SECRET is not set — refusing to run.")
+    return new NextResponse("Unauthorized", { status: 401 })
+  }
+  if (req.headers.get("authorization") !== `Bearer ${secret}`) {
+    return new NextResponse("Unauthorized", { status: 401 })
   }
 
   try {

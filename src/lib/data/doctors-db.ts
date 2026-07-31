@@ -33,6 +33,8 @@ export type Doctor = {
   reviewKeywords: { text: string; count: number }[]
   kakaoUrl?: string
   websiteUrl?: string
+  phone?: string
+  naverBookingUrl?: string
   photoPlaceholderColor: string
   photoUrl?: string
   videos: VideoContent[]
@@ -92,6 +94,15 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
       id, slug, name, hospital, location, district, region,
       specialties, keywords, target_patients, treatments, bio,
       hours, lunch_break, closed_days, review_keywords,
+      kakao_url, website_url, phone, naver_booking_url,
+      photo_placeholder_color, photo_url, is_published,
+      doctor_videos ( url, title, date, sort_order ),
+      doctor_articles ( url, title, date, platform, sort_order, thumbnail_url )
+    `
+  const noContactSelect = `
+      id, slug, name, hospital, location, district, region,
+      specialties, keywords, target_patients, treatments, bio,
+      hours, lunch_break, closed_days, review_keywords,
       kakao_url, website_url, photo_placeholder_color, photo_url, is_published,
       doctor_videos ( url, title, date, sort_order ),
       doctor_articles ( url, title, date, platform, sort_order, thumbnail_url )
@@ -126,6 +137,10 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
   }
 
   let { data, err: errorMsg } = await run(fullSelect)
+  if (errorMsg && /phone|naver_booking_url/i.test(errorMsg)) {
+    console.warn("[doctors-db] contact columns missing — run migration 013.")
+    ;({ data, err: errorMsg } = await run(noContactSelect))
+  }
   if (errorMsg && /thumbnail_url/i.test(errorMsg)) {
     console.warn("[doctors-db] thumbnail_url missing — run migration 010.")
     ;({ data, err: errorMsg } = await run(noThumbnailSelect))
@@ -180,6 +195,8 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
     const closedDays = (row.closed_days as string | null) ?? null
     const kakaoUrl = (row.kakao_url as string | null) ?? null
     const websiteUrl = (row.website_url as string | null) ?? null
+    const phone = (row.phone as string | null) ?? null
+    const naverBookingUrl = (row.naver_booking_url as string | null) ?? null
     const photoUrl = (row.photo_url as string | null) ?? null
 
     return {
@@ -202,6 +219,8 @@ async function getAllDoctorsRaw(): Promise<Doctor[]> {
         (row.review_keywords as Doctor["reviewKeywords"] | null) ?? [],
       ...(kakaoUrl ? { kakaoUrl } : {}),
       ...(websiteUrl ? { websiteUrl } : {}),
+      ...(phone ? { phone } : {}),
+      ...(naverBookingUrl ? { naverBookingUrl } : {}),
       photoPlaceholderColor:
         (row.photo_placeholder_color as string) ?? "#D4895A",
       ...(photoUrl ? { photoUrl } : {}),

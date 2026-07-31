@@ -140,13 +140,12 @@ export function DoctorCard({ doctor, compact = false }: Props) {
         {!compact && doctor.reviewKeywords.length > 0 && (
           <div className="px-5 pt-4">
             <div className="rounded-xl bg-muted/60 px-4 py-3">
-              <p className="text-xs text-muted-foreground mb-1.5">환자 후기 키워드</p>
+              <p className="text-xs text-muted-foreground mb-1.5">진료 스타일 키워드</p>
               <div className="flex flex-col gap-1">
                 {doctor.reviewKeywords.slice(0, 2).map((rk) => (
-                  <div key={rk.text} className="flex items-center justify-between">
-                    <span className="text-xs text-foreground/80 word-keep">{rk.text}</span>
-                    <span className="text-xs font-semibold text-primary ml-2 flex-shrink-0">{rk.count}명</span>
-                  </div>
+                  <span key={rk.text} className="text-xs text-foreground/80 word-keep">
+                    {rk.text}
+                  </span>
                 ))}
               </div>
             </div>

@@ -52,8 +52,8 @@ export function DoctorAdminControls({
         disabled={pending}
         className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95 disabled:opacity-50 ${
           isPublished
-            ? "bg-green-100 text-green-800 hover:bg-green-200"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-200 dark:hover:bg-green-900/70"
+            : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
         }`}
         title={isPublished ? "클릭해서 숨김" : "클릭해서 공개"}
       >
@@ -72,7 +72,7 @@ export function DoctorAdminControls({
         type="button"
         onClick={onDelete}
         disabled={pending}
-        className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 transition active:scale-95 disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 dark:bg-red-950/60 dark:text-red-300 dark:hover:bg-red-950 transition active:scale-95 disabled:opacity-50"
         title="의사 프로필 완전 삭제"
       >
         <Trash2 size={13} /> 삭제

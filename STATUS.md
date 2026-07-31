@@ -2,8 +2,8 @@
 name: 닥터마음곰
 description: 정신건강의학과 의사-환자 매칭 플랫폼 (정신과계 강남언니, 의사 15명)
 status: active
-progress: 78
-updated: 2026-05-30
+progress: 86
+updated: 2026-07-31
 tags: [nextjs, vercel, supabase, ai]
 ---
 
@@ -21,11 +21,33 @@ tags: [nextjs, vercel, supabase, ai]
 - [x] Phase A — 매칭 분석 대시보드 (/admin/match-queries)
 - [x] Vercel 계정 이전 — scanme → leedawon82-7956 (orgId team_RAgM3gz... + auto-deploy webhook 검증)
 - [x] admin 편집 페이지 — publish 토글 라벨 명확화 + 의사 삭제 버튼
+- [x] 보안 강화 + AI rate limit + 이미지 최적화 + 클릭 추적 + 다크모드 (2026-06-12)
+- [x] Supabase free-tier 자동 일시정지 방지 — daily keepalive cron (2026-06-22)
+- [x] 다축 개선 감사 + P1/P2 일괄 조치 (2026-07-31) — 배포 전 아래 2건 선행 필요
+- [ ] **선행 필수** — 마이그레이션 013 적용 (doctors.phone·naver_booking_url 추가 + match_queries anon INSERT 정책 제거)
+- [ ] **선행 필수** — Vercel 환경변수 CRON_SECRET 설정 (미설정 시 keepalive 401로 차단됨)
+- [ ] 의사별 전화번호·네이버 예약 URL 실제 값 입력 (컬럼·관리자 입력폼은 준비 완료)
 - [ ] magom.io 도메인 재구입 + Resend 활성화
 - [ ] Google OAuth 추가 검토
 - [ ] Phase 4 — Q&A 게시판 / 커뮤니티 / 광고 슬롯
 
 # 개발 로그
+
+## 2026-07-31
+
+- 전 영역 개선 감사(보안·UI/UX·기능·SEO·사업성) 후 P1/P2 일괄 조치.
+- 치명 5건 처리: 후기 본문을 통한 저장형 XSS 차단, 자살예방상담 109·1577-0199 안내 신설, 근거 없던 "후기 28명" 수치 제거(진료 스타일 키워드로 정정), 개인정보처리방침·이용약관 페이지 신설 + 매칭 화면의 잘못된 "저장 안 함" 고지 정정, AI 매칭 rate limit 우회 경로 차단.
+- 전환 경로 보강: 전화·네이버 예약 컬럼과 CTA 추가, 연락처가 없는 선생님에게도 대체 경로 제공, 모바일 하단 고정 예약 바.
+- 안정성·품질: 에러·404·로딩 화면 신설, 관리자 표가 모바일에서 잘리던 문제 해결, 다크모드 대비 개선, 진료시간 파서의 공휴일·괄호·요일 오판 수정, 보안 헤더 추가, 프로덕션 취약점 12건 → 3건.
+
+## 2026-06-22
+
+- Supabase free-tier 자동 일시정지로 의사 데이터 조회 끊김 → DB 복원 + daily keepalive cron 신설(재발 방지)
+- 마이그레이션 009~012 전부 적용 확인, 임시 debug 라우트 정리
+
+## 2026-06-12
+
+- 보안 강화 + AI 매칭 rate limit + 이미지 최적화 + 클릭 추적 + 다크모드 일괄
 
 ## 2026-05-30
 

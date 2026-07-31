@@ -1,7 +1,29 @@
 import "server-only"
+import { safeFetch } from "@/lib/security/ssrf"
 
 const UC_RE = /^UC[A-Za-z0-9_-]{22}$/
 const CHANNEL_PATH_RE = /youtube\.com\/channel\/(UC[A-Za-z0-9_-]{22})/i
+const YOUTUBE_HOSTS = ["youtube.com", "www.youtube.com", "m.youtube.com"]
+
+/**
+ * True only when `raw` parses as an http(s) URL whose host IS a YouTube host
+ * and whose path is a handle / custom / legacy-user channel path.
+ *
+ * A substring test ("does it contain youtube.com/@") is not enough: the
+ * fragment in `http://169.254.169.254/x#youtube.com/@a` satisfies it, which
+ * turned this resolver into an SSRF probe against the metadata endpoint.
+ */
+function isYoutubeChannelUrl(raw: string): boolean {
+  let url: URL
+  try {
+    url = new URL(raw)
+  } catch {
+    return false
+  }
+  if (url.protocol !== "https:" && url.protocol !== "http:") return false
+  if (!YOUTUBE_HOSTS.includes(url.hostname.toLowerCase())) return false
+  return /^\/(@[^/]+|c\/[^/]+|user\/[^/]+)/.test(url.pathname)
+}
 
 // Patterns in priority order. Canonical link points unambiguously at the
 // page's own channel, so it's the most reliable. `channelId` JSON appears
@@ -50,13 +72,15 @@ export async function resolveChannelId(raw: string): Promise<string | null> {
   if (m) return m[1]
 
   // 3. /@handle, /c/name, /user/legacy → fetch + regex-scrape
-  if (!/youtube\.com\/(@|c\/|user\/)/i.test(trimmed)) {
+  if (!isYoutubeChannelUrl(trimmed)) {
     return null
   }
 
   let res: Response
   try {
-    res = await fetch(trimmed, {
+    // safeFetch re-checks each redirect hop against private address ranges,
+    // so a YouTube redirect can't be used to reach an internal service.
+    res = await safeFetch(trimmed, {
       signal: AbortSignal.timeout(10_000),
       headers: {
         "User-Agent":

@@ -2,6 +2,10 @@ import Link from "next/link"
 import { Mail } from "lucide-react"
 import { MagomBear } from "@/components/brand/MagomBear"
 
+// Resolved at build time — the footer sits in the prerendered shell, so it must
+// not read the clock during render.
+const COPYRIGHT_YEAR = new Date().getFullYear()
+
 export function Footer() {
   return (
     <footer className="border-t border-border bg-muted/50 mt-16">
@@ -100,13 +104,37 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-border mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-muted-foreground">
-            © 2024 닥터마음곰. All rights reserved.
+        <div className="border-t border-border mt-8 pt-6 space-y-4">
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            닥터마음곰은 의료기관과 의사의 공개된 정보를 모아 보여주는 정보 제공
+            서비스이며, 의료행위를 하지 않습니다. 게재된 정보와 AI 추천은
+            참고용으로 의학적 진단·치료를 대체하지 않으며, 치료 효과를 보장하지
+            않습니다. 진료시간·연락처는 변경될 수 있으니 방문 전 해당 의료기관에
+            확인해주세요. 지금 위험하다고 느끼신다면{" "}
+            <a href="tel:109" className="font-medium text-foreground underline">
+              자살예방상담 109
+            </a>
+            (24시간 무료)로 연락해주세요.
           </p>
-          <p className="text-xs text-muted-foreground">
-            contact@magom.io
-          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-4">
+              <Link
+                href="/privacy"
+                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                개인정보처리방침
+              </Link>
+              <Link
+                href="/terms"
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                이용약관
+              </Link>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              © {COPYRIGHT_YEAR} 닥터마음곰 · contact@magom.io
+            </p>
+          </div>
         </div>
       </div>
     </footer>

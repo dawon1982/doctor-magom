@@ -155,7 +155,7 @@ function ApplicationCard({
             <form action={approveApplication}>
               <input type="hidden" name="id" value={app.id} />
               <SubmitButton
-                className="rounded-md bg-green-600 text-white px-2.5 py-1 text-xs"
+                className="rounded-md bg-green-700 text-white px-2.5 py-1 text-xs"
                 pendingLabel="승인 중…"
               >
                 승인
@@ -164,7 +164,7 @@ function ApplicationCard({
             <form action={rejectApplication}>
               <input type="hidden" name="id" value={app.id} />
               <SubmitButton
-                className="rounded-md bg-gray-200 text-gray-700 px-2.5 py-1 text-xs"
+                className="rounded-md bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-100 px-2.5 py-1 text-xs"
                 pendingLabel="거절 중…"
               >
                 거절
@@ -176,14 +176,14 @@ function ApplicationCard({
         {app.status === "approved" && app.approved_doctor_id && (
           <div className="flex items-center gap-2 shrink-0">
             {linked ? (
-              <span className="rounded-md bg-green-100 text-green-800 px-2.5 py-1 text-xs font-medium">
+              <span className="rounded-md bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200 px-2.5 py-1 text-xs font-medium">
                 ✓ 프로필 연결 완료
               </span>
             ) : signedUp && verifiedInvitee ? (
               <form action={linkApplicationToProfile}>
                 <input type="hidden" name="id" value={app.id} />
                 <SubmitButton
-                  className="rounded-md bg-orange-500 text-white px-2.5 py-1 text-xs font-medium"
+                  className="rounded-md bg-orange-700 text-white px-2.5 py-1 text-xs font-medium"
                   title="이 신청자의 가입 프로필을 doctor row에 연결"
                   pendingLabel="연결 중…"
                 >
@@ -192,14 +192,14 @@ function ApplicationCard({
               </form>
             ) : signedUp && !verifiedInvitee ? (
               <span
-                className="rounded-md bg-yellow-100 text-yellow-800 px-2.5 py-1 text-xs"
+                className="rounded-md bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200 px-2.5 py-1 text-xs"
                 title="같은 이메일로 가입된 사용자는 있지만 우리가 보낸 invite 토큰이 확인되지 않았어요. 수동으로 확인 후 linkDoctorToProfile 사용."
               >
                 ⚠ 검증 실패
               </span>
             ) : (
               <span
-                className="rounded-md bg-gray-100 text-gray-600 px-2.5 py-1 text-xs"
+                className="rounded-md bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 px-2.5 py-1 text-xs"
                 title="신청자가 invite 링크로 아직 가입하지 않았어요"
               >
                 가입 대기 중
@@ -249,10 +249,10 @@ function ApplicationCard({
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    pending: "bg-yellow-100 text-yellow-800",
-    contacted: "bg-blue-100 text-blue-800",
-    approved: "bg-green-100 text-green-800",
-    rejected: "bg-gray-100 text-gray-600",
+    pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200",
+    contacted: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200",
+    approved: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200",
+    rejected: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300",
   }
   const label: Record<string, string> = {
     pending: "대기",

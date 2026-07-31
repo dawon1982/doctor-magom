@@ -30,7 +30,27 @@ export function OpenStatusBadge({
     return () => clearInterval(id)
   }, [hours, lunchBreak, closedDays])
 
-  if (!status) return null
+  // Before mount we can't know the time, but we still reserve the exact box the
+  // real badge will occupy so hydration doesn't shift the layout.
+  if (!status) {
+    if (variant === "card") {
+      return (
+        <span
+          aria-hidden
+          className="invisible inline-flex items-center gap-1.5 rounded-full bg-background/80 border border-border/60 px-2 py-0.5 text-[11px] font-medium"
+        >
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+          진료중
+        </span>
+      )
+    }
+    return (
+      <div aria-hidden className="invisible flex items-center gap-2 mb-3">
+        <span className="inline-block h-2 w-2 rounded-full bg-muted-foreground ring-2 ring-background" />
+        <span className="text-sm font-semibold">진료중</span>
+      </div>
+    )
+  }
 
   let dotClass = "bg-muted-foreground"
   let label = "정보 없음"

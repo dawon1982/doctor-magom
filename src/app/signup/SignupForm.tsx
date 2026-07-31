@@ -36,9 +36,15 @@ export default function SignupForm() {
         </button>
       </form>
 
-      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state.error && (
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          {state.error}
+        </p>
+      )}
       {state.ok && state.message && (
-        <p className="text-sm text-green-700">{state.message}</p>
+        <p role="status" className="text-sm text-green-700 dark:text-green-400">
+          {state.message}
+        </p>
       )}
 
       <p className="text-xs text-muted-foreground leading-relaxed">

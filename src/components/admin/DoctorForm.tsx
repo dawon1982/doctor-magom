@@ -23,6 +23,8 @@ export type DoctorFormValues = {
   reviewKeywords?: { text: string; count: number }[]
   kakaoUrl?: string | null
   websiteUrl?: string | null
+  phone?: string | null
+  naverBookingUrl?: string | null
   youtubeChannelUrl?: string | null
   photoPlaceholderColor?: string
   photoUrl?: string | null
@@ -49,6 +51,8 @@ type State = {
   reviewKeywords: string
   kakaoUrl: string
   websiteUrl: string
+  phone: string
+  naverBookingUrl: string
   youtubeChannelUrl: string
   photoPlaceholderColor: string
 }
@@ -72,6 +76,8 @@ function initialState(v: DoctorFormValues): State {
     reviewKeywords: JSON.stringify(v.reviewKeywords ?? [], null, 2),
     kakaoUrl: v.kakaoUrl ?? "",
     websiteUrl: v.websiteUrl ?? "",
+    phone: v.phone ?? "",
+    naverBookingUrl: v.naverBookingUrl ?? "",
     youtubeChannelUrl: v.youtubeChannelUrl ?? "",
     photoPlaceholderColor: v.photoPlaceholderColor ?? "#D4895A",
   }
@@ -318,6 +324,23 @@ export default function DoctorForm({
         rows={4}
         mono
       />
+
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Field
+          name="phone"
+          label="예약 전화번호"
+          value={s.phone}
+          onChange={(e) => update({ phone: e.target.value })}
+          type="tel"
+        />
+        <Field
+          name="naverBookingUrl"
+          label="네이버 예약 URL"
+          value={s.naverBookingUrl}
+          onChange={(e) => update({ naverBookingUrl: e.target.value })}
+          type="url"
+        />
+      </div>
 
       <div className="grid sm:grid-cols-2 gap-3">
         <Field

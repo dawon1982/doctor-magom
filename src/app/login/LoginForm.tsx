@@ -55,19 +55,25 @@ export default function LoginForm({
             required
             autoComplete="current-password"
           />
-          <SubmitButton pending={pwPending}>로그인</SubmitButton>
+          <FormSubmitButton pending={pwPending}>로그인</FormSubmitButton>
         </form>
       ) : (
         <form action={mlAction} className="space-y-3">
           <Field name="email" label="이메일" type="email" required autoComplete="email" />
-          <SubmitButton pending={mlPending}>매직링크 보내기</SubmitButton>
+          <FormSubmitButton pending={mlPending}>매직링크 보내기</FormSubmitButton>
           {mlState.ok && mlState.message && (
-            <p className="text-sm text-green-700">{mlState.message}</p>
+            <p role="status" className="text-sm text-green-700 dark:text-green-400">
+              {mlState.message}
+            </p>
           )}
         </form>
       )}
 
-      {errMsg && <p className="text-sm text-red-600">{errMsg}</p>}
+      {errMsg && (
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          {errMsg}
+        </p>
+      )}
 
       <p className="text-sm text-muted-foreground">
         아직 계정이 없으세요?{" "}
@@ -92,7 +98,10 @@ function Field(props: React.InputHTMLAttributes<HTMLInputElement> & { label: str
   )
 }
 
-function SubmitButton({
+// Named FormSubmitButton to avoid colliding with the shared
+// `@/components/ui/SubmitButton` — this local one is driven by an explicit
+// `pending` prop from useActionState, not useFormStatus.
+function FormSubmitButton({
   pending,
   children,
 }: {

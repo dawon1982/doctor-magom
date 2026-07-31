@@ -51,7 +51,10 @@ export default function ApplyForm() {
 
   if (done) {
     return (
-      <div className="rounded-xl border border-green-200 bg-green-50 p-6">
+      <div
+        role="status"
+        className="rounded-xl border border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/40 p-6"
+      >
         <p className="font-semibold mb-1">신청을 잘 받았어요!</p>
         <p className="text-sm text-muted-foreground">
           영업일 기준 3일 이내에 입력하신 이메일로 답변드릴게요.
@@ -110,7 +113,11 @@ export default function ApplyForm() {
         rows={5}
       />
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          {error}
+        </p>
+      )}
       <button
         type="submit"
         disabled={pending}

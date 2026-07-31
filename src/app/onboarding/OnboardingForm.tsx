@@ -52,7 +52,11 @@ export default function OnboardingForm() {
         </Link>
       </div>
 
-      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state.error && (
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          {state.error}
+        </p>
+      )}
     </form>
   )
 }
@@ -73,7 +77,7 @@ function PillSelect({
         {options.map((opt) => (
           <label
             key={opt}
-            className="cursor-pointer rounded-full border border-border px-3 py-1.5 text-sm hover:bg-accent has-[:checked]:bg-primary has-[:checked]:text-primary-foreground has-[:checked]:border-primary"
+            className="cursor-pointer rounded-full border border-border px-3 py-1.5 text-sm hover:bg-accent has-[:checked]:bg-primary has-[:checked]:text-primary-foreground has-[:checked]:border-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background"
           >
             <input type="radio" name={name} value={opt} className="sr-only" />
             {opt}

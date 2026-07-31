@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/about" },
   openGraph: {
     title: "닥터마음곰 서비스 소개",
-    description: "정신건강의학과계의 강남언니 — 영상으로 의사를 먼저 만나는 매칭 플랫폼",
+    description: "영상으로 의사를 먼저 만나는 정신건강의학과 매칭 플랫폼",
     type: "website",
   },
 }
@@ -38,13 +38,21 @@ const features = [
   },
   {
     icon: <Star size={22} className="text-primary" />,
-    title: "큐레이션된 의사 목록",
-    desc: "자발적으로 자료를 제출한 선생님만 소개해요. 닥터마음곰이 직접 검토한 의사분들입니다.",
+    title: "선생님이 직접 등록한 목록",
+    desc: "자발적으로 자료를 제출한 선생님만 소개해요. 공개된 프로필·영상·기고글을 확인해 등록합니다.",
   },
   {
     icon: <Zap size={22} className="text-primary" />,
-    title: "곧 출시 예정",
-    desc: "AI 기반 맞춤 추천, 카테고리별 검색, 입원 가능 여부 표시 기능을 준비 중이에요.",
+    title: "AI 맞춤 추천",
+    desc: (
+      <>
+        지금 겪고 있는 어려움을 문장으로 적으면 AI가 조건에 맞는 선생님을
+        추천해드려요.{" "}
+        <Link href="/match" className="text-primary font-medium hover:underline">
+          AI 매칭 해보기
+        </Link>
+      </>
+    ),
   },
 ]
 
@@ -57,7 +65,7 @@ const steps = [
   {
     step: "02",
     title: "상세 프로필 확인",
-    desc: "유튜브 영상, 기고글, 진료시간, 환자 후기 키워드를 보고 더 깊이 알아가세요.",
+    desc: "유튜브 영상, 기고글, 진료시간, 진료 스타일 키워드를 보고 더 깊이 알아가세요.",
   },
   {
     step: "03",
@@ -79,7 +87,7 @@ export default function AboutPage() {
           <p className="mt-4 text-base text-muted-foreground word-keep max-w-2xl mx-auto leading-relaxed">
             마음이 맞는 선생님을 찾을 때까지, 닥터마음곰이 도와드릴게요.
             <br className="hidden sm:block" />
-            정신건강의학과 계의 강남언니를 만들겠습니다.
+            영상으로 선생님을 먼저 만나보는 정신건강의학과 매칭 플랫폼입니다.
           </p>
         </div>
       </section>

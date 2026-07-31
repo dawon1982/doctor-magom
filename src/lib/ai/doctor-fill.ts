@@ -1,5 +1,6 @@
 import "server-only"
 import { htmlToText } from "html-to-text"
+import { safeFetch, BlockedUrlError } from "@/lib/security/ssrf"
 import Anthropic from "@anthropic-ai/sdk"
 import { getAnthropic, getModelId } from "./anthropic"
 import { AiDoctorFillSchema, type AiDoctorFill } from "@/lib/validation/ai"
@@ -18,23 +19,15 @@ export type FillResult =
   | { ok: false; error: string }
 
 async function fetchPageText(url: string): Promise<string> {
-  let parsed: URL
-  try {
-    parsed = new URL(url)
-  } catch {
-    throw new Error("URL 형식이 올바르지 않아요.")
-  }
-  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-    throw new Error("http(s) URL만 지원해요.")
-  }
-
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
   let res: Response
   try {
-    res = await fetch(parsed.toString(), {
+    // safeFetch validates the URL (and every redirect hop) against private /
+    // loopback / link-local ranges — this input is admin-supplied but still
+    // reaches the network from inside our infrastructure.
+    res = await safeFetch(url, {
       signal: controller.signal,
-      redirect: "follow",
       headers: {
         "User-Agent":
           "Mozilla/5.0 (compatible; DoctorMagomBot/1.0; +https://doctor-magom.vercel.app)",
@@ -42,6 +35,7 @@ async function fetchPageText(url: string): Promise<string> {
       },
     })
   } catch (err) {
+    if (err instanceof BlockedUrlError) throw err
     if (err instanceof Error && err.name === "AbortError") {
       throw new Error("페이지 로딩이 10초를 넘었어요. 다른 URL을 시도해주세요.")
     }

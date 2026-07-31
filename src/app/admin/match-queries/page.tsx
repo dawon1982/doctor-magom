@@ -31,7 +31,7 @@ export default async function MatchQueriesPage() {
     return (
       <div>
         <h1 className="text-2xl font-bold mb-2">AI 매칭 분석</h1>
-        <p className="text-sm text-red-600">
+        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
           쿼리 로그 불러오기 실패: {error.message}
           <br />
           <span className="text-muted-foreground">
@@ -183,10 +183,12 @@ function Stat({
 }) {
   return (
     <div
-      className={`rounded-xl border bg-card px-4 py-3 ${danger ? "border-red-200" : "border-border"}`}
+      className={`rounded-xl border bg-card px-4 py-3 ${danger ? "border-red-200 dark:border-red-900" : "border-border"}`}
     >
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className={`text-xl font-bold mt-0.5 ${danger ? "text-red-600" : ""}`}>
+      <p
+        className={`text-xl font-bold mt-0.5 ${danger ? "text-red-600 dark:text-red-400" : ""}`}
+      >
         {value}
       </p>
       {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
@@ -209,7 +211,9 @@ function QueryCard({
   return (
     <div
       className={`rounded-xl border bg-card p-4 ${
-        isError ? "border-red-200 bg-red-50/40" : "border-border"
+        isError
+          ? "border-red-200 bg-red-50/40 dark:border-red-900 dark:bg-red-950/30"
+          : "border-border"
       }`}
     >
       <div className="flex items-baseline justify-between gap-3 mb-2">
@@ -251,7 +255,9 @@ function QueryCard({
       )}
 
       {row.error && (
-        <p className="text-xs text-red-700 mb-2 font-mono">⚠️ {row.error}</p>
+        <p className="text-xs text-red-700 dark:text-red-400 mb-2 font-mono">
+          ⚠️ {row.error}
+        </p>
       )}
 
       {row.recommended_slugs?.length > 0 ? (

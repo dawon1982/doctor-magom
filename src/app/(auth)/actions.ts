@@ -10,6 +10,7 @@ import {
   PatientCrmSchema,
 } from "@/lib/validation/auth"
 import { sendEmail } from "@/lib/email/resend"
+import { safeNextPath } from "@/lib/security/safe-redirect"
 
 export type ActionState = { error?: string; ok?: boolean; message?: string }
 
@@ -36,8 +37,8 @@ export async function loginAction(
   const { error } = await supabase.auth.signInWithPassword(parsed.data)
   if (error) return { error: "로그인에 실패했어요. 이메일과 비밀번호를 확인해주세요." }
 
-  const next = String(formData.get("next") ?? "") || "/"
-  redirect(next)
+  // Only same-origin paths — a raw `next` here is an open redirect.
+  redirect(safeNextPath(String(formData.get("next") ?? "")))
 }
 
 export async function magicLinkAction(
@@ -79,7 +80,11 @@ export async function signupAction(
       emailRedirectTo: `${await siteOrigin()}/auth/callback`,
     },
   })
-  if (signupErr) return { error: signupErr.message }
+  if (signupErr) {
+    // Supabase messages can leak whether an address is already registered.
+    console.error("[signup] supabase signUp failed:", signupErr.message)
+    return { error: "가입에 실패했어요. 입력값을 확인하고 잠시 후 다시 시도해주세요." }
+  }
 
   // If email confirmation is disabled in the Supabase project, the user
   // is signed in immediately. Persist the CRM seed row and fire the

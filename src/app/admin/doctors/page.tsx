@@ -39,8 +39,8 @@ export default async function AdminDoctorsPage() {
         </Link>
       </div>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="rounded-xl border border-border bg-card overflow-x-auto">
+        <table className="w-full min-w-[760px] text-sm">
           <thead className="bg-muted/40 text-left text-xs uppercase">
             <tr>
               <th className="px-4 py-3">이름</th>
@@ -79,8 +79,8 @@ export default async function AdminDoctorsPage() {
                     <SubmitButton
                       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition active:scale-95 ${
                         d.is_published
-                          ? "bg-green-100 text-green-800 hover:bg-green-200"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-200 dark:hover:bg-green-900/70"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                       }`}
                       pendingLabel="…"
                       title={d.is_published ? "클릭해서 숨김" : "클릭해서 공개"}

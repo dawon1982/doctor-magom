@@ -74,6 +74,13 @@ export const DoctorProfileSchema = z.object({
     .max(20),
   kakaoUrl: z.string().url().max(300).optional().nullable(),
   websiteUrl: z.string().url().max(300).optional().nullable(),
+  phone: z
+    .string()
+    .max(30)
+    .regex(/^[0-9+\-() ]*$/, "숫자와 -, +, 괄호만 입력할 수 있어요")
+    .optional()
+    .nullable(),
+  naverBookingUrl: z.string().url().max(300).optional().nullable(),
   youtubeChannelUrl: z.string().url().max(300).optional().nullable(),
   photoPlaceholderColor: z.string().max(20).default("#D4895A"),
   isPublished: z.coerce.boolean().optional().default(true),
