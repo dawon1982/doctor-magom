@@ -7,6 +7,7 @@ import { HeroPhotoCarousel } from "@/components/home/HeroPhotoCarousel"
 import { MagomBear } from "@/components/brand/MagomBear"
 import { getSiteUrl, SITE_NAME, SITE_TAGLINE } from "@/lib/site"
 import { jsonLdHtml } from "@/lib/jsonld"
+import { AI_MATCH_ENABLED } from "@/lib/flags"
 
 const prejudiceItems = [
   {
@@ -119,18 +120,29 @@ export default async function Home() {
           />
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              href="/match"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-base font-semibold text-primary-foreground hover:opacity-90 transition-opacity shadow-md shadow-primary/25"
-            >
-              <Sparkles size={17} /> AI로 의사 추천받기
-            </Link>
-            <Link
-              href="/doctors"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-7 py-3.5 text-base font-medium text-foreground hover:bg-muted transition-colors"
-            >
-              직접 찾아보기 <ArrowRight size={17} />
-            </Link>
+            {AI_MATCH_ENABLED ? (
+              <>
+                <Link
+                  href="/match"
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-base font-semibold text-primary-foreground hover:opacity-90 transition-opacity shadow-md shadow-primary/25"
+                >
+                  <Sparkles size={17} /> AI로 의사 추천받기
+                </Link>
+                <Link
+                  href="/doctors"
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-7 py-3.5 text-base font-medium text-foreground hover:bg-muted transition-colors"
+                >
+                  직접 찾아보기 <ArrowRight size={17} />
+                </Link>
+              </>
+            ) : (
+              <Link
+                href="/doctors"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-base font-semibold text-primary-foreground hover:opacity-90 transition-opacity shadow-md shadow-primary/25"
+              >
+                <Search size={17} /> 선생님 찾아보기
+              </Link>
+            )}
           </div>
 
           <div className="mt-14 grid grid-cols-3 gap-4 max-w-sm mx-auto">
@@ -395,17 +407,23 @@ export default async function Home() {
             지금 바로 나와 맞는 선생님을 찾아보세요.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/match"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
-            >
-              <Sparkles size={17} /> AI 추천받기
-            </Link>
+            {AI_MATCH_ENABLED && (
+              <Link
+                href="/match"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
+              >
+                <Sparkles size={17} /> AI 추천받기
+              </Link>
+            )}
             <Link
               href="/doctors"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-8 py-4 text-base font-medium hover:bg-background transition-colors"
+              className={
+                AI_MATCH_ENABLED
+                  ? "inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-8 py-4 text-base font-medium hover:bg-background transition-colors"
+                  : "inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
+              }
             >
-              <Search size={15} className="text-primary" /> 직접 찾아보기
+              <Search size={15} className={AI_MATCH_ENABLED ? "text-primary" : undefined} /> 직접 찾아보기
             </Link>
           </div>
         </div>

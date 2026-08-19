@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next"
 import { getAllDoctorSlugs } from "@/lib/data/doctors-db"
 import { getSiteUrl } from "@/lib/site"
+import { AI_MATCH_ENABLED } from "@/lib/flags"
 
 const STATIC_ROUTES: { path: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }[] = [
   { path: "/", changeFrequency: "daily", priority: 1 },
-  { path: "/match", changeFrequency: "weekly", priority: 0.95 },
+  { path: "/match", changeFrequency: "weekly", priority: AI_MATCH_ENABLED ? 0.95 : 0.3 },
   { path: "/doctors", changeFrequency: "daily", priority: 0.9 },
   { path: "/videos", changeFrequency: "daily", priority: 0.7 },
   { path: "/articles", changeFrequency: "weekly", priority: 0.7 },

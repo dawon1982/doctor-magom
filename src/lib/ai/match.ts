@@ -155,9 +155,20 @@ export async function runMatch(input: MatchInput): Promise<MatchResult> {
       }
     }
     if (err instanceof Anthropic.APIError) {
-      return { ok: false, error: `AI 호출 실패 (${err.status}): ${err.message}` }
+      // Raw provider error bodies (gateway routing metadata, upgrade URLs)
+      // must never reach the public UI — log server-side only.
+      console.error("[ai/match] APIError", err.status, err.message)
+      return {
+        ok: false,
+        error:
+          "AI 추천을 잠시 사용할 수 없어요. 아래 버튼으로 선생님 목록을 직접 둘러봐주세요.",
+      }
     }
-    return { ok: false, error: `예상치 못한 오류: ${(err as Error).message}` }
+    console.error("[ai/match] unexpected error", err)
+    return {
+      ok: false,
+      error: "예상치 못한 오류가 났어요. 잠시 후 다시 시도해주세요.",
+    }
   }
 }
 

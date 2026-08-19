@@ -8,9 +8,10 @@ import { UserMenu } from "@/components/auth/UserMenu"
 import { MagomBear } from "@/components/brand/MagomBear"
 import { ThemeToggle } from "@/components/theme/ThemeToggle"
 import type { Role } from "@/lib/supabase/types"
+import { AI_MATCH_ENABLED } from "@/lib/flags"
 
 const navItems: { href: string; label: string; highlight?: boolean }[] = [
-  { href: "/match", label: "AI 추천", highlight: true },
+  ...(AI_MATCH_ENABLED ? [{ href: "/match", label: "AI 추천", highlight: true }] : []),
   { href: "/doctors", label: "선생님 찾기" },
   { href: "/videos", label: "영상 보기" },
   { href: "/articles", label: "기고글" },

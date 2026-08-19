@@ -2,6 +2,7 @@ import Link from "next/link"
 import { ArrowRight, Video, Heart, Search, MessageCircle, Star, Zap } from "lucide-react"
 import type { Metadata } from "next"
 import { MagomBear } from "@/components/brand/MagomBear"
+import { AI_MATCH_ENABLED } from "@/lib/flags"
 
 export const metadata: Metadata = {
   title: "서비스 소개",
@@ -48,9 +49,13 @@ const features = [
       <>
         지금 겪고 있는 어려움을 문장으로 적으면 AI가 조건에 맞는 선생님을
         추천해드려요.{" "}
-        <Link href="/match" className="text-primary font-medium hover:underline">
-          AI 매칭 해보기
-        </Link>
+        {AI_MATCH_ENABLED ? (
+          <Link href="/match" className="text-primary font-medium hover:underline">
+            AI 매칭 해보기
+          </Link>
+        ) : (
+          <span className="text-muted-foreground">(잠시 정비 중이에요)</span>
+        )}
       </>
     ),
   },

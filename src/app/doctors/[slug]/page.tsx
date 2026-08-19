@@ -29,6 +29,7 @@ import { getMyFavoriteDoctorIds } from "@/lib/actions/favorites"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { jsonLdHtml } from "@/lib/jsonld"
+import { AI_MATCH_ENABLED } from "@/lib/flags"
 import { toOpeningHoursSpecification } from "@/lib/schema-hours"
 
 type Props = {
@@ -503,10 +504,10 @@ export default async function DoctorDetailPage({ params }: Props) {
                   {doctor.region} 지역 선생님 보기
                 </Link>
                 <Link
-                  href="/match"
+                  href={AI_MATCH_ENABLED ? "/match" : "/doctors"}
                   className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
                 >
-                  AI로 추천받기
+                  {AI_MATCH_ENABLED ? "AI로 추천받기" : "다른 선생님 보기"}
                 </Link>
               </div>
             </div>
