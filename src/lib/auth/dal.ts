@@ -1,6 +1,6 @@
 import "server-only"
 import { cache } from "react"
-import { redirect } from "next/navigation"
+import { redirect, unstable_rethrow } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import type { Role } from "@/lib/supabase/types"
 
@@ -47,6 +47,9 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
       doctorId: profile?.doctor_id ?? null,
     }
   } catch (err) {
+    // PPR 프리렌더 중 cookies()가 던지는 프레임워크 제어 에러는 Next가
+    // 처리해야 함 — 여기서 삼키면 프리렌더마다 가짜 error 로그가 쌓인다.
+    unstable_rethrow(err)
     console.error("[dal.getSessionUser] falling back to anon:", err)
     return null
   }
