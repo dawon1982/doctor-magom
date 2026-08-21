@@ -3,7 +3,7 @@ name: 닥터마음곰
 description: 정신건강의학과 의사-환자 매칭 플랫폼 (정신과계 강남언니, 의사 15명)
 status: active
 progress: 86
-updated: 2026-07-31
+updated: 2026-08-19
 tags: [nextjs, vercel, supabase, ai]
 ---
 
@@ -23,15 +23,21 @@ tags: [nextjs, vercel, supabase, ai]
 - [x] admin 편집 페이지 — publish 토글 라벨 명확화 + 의사 삭제 버튼
 - [x] 보안 강화 + AI rate limit + 이미지 최적화 + 클릭 추적 + 다크모드 (2026-06-12)
 - [x] Supabase free-tier 자동 일시정지 방지 — daily keepalive cron (2026-06-22)
-- [x] 다축 개선 감사 + P1/P2 일괄 조치 (2026-07-31) — 배포 전 아래 2건 선행 필요
-- [ ] **선행 필수** — 마이그레이션 013 적용 (doctors.phone·naver_booking_url 추가 + match_queries anon INSERT 정책 제거)
-- [ ] **선행 필수** — Vercel 환경변수 CRON_SECRET 설정 (미설정 시 keepalive 401로 차단됨)
+- [x] 다축 개선 감사 + P1/P2 일괄 조치 + 배포 (2026-07-31)
+- [x] 마이그레이션 013 적용 (doctors.phone·naver_booking_url 추가 + match_queries anon INSERT 정책 제거) (2026-07-31)
+- [x] Vercel 환경변수 CRON_SECRET 설정 (2026-07-31)
+- [ ] AI 매칭 재활성 — Vercel이 무료 크레딧에서 Claude 차단(2026-08). 결제 경로(Vercel 크레딧 충전 또는 Anthropic 직접 키) 결정 후 `src/lib/flags.ts`의 AI_MATCH_ENABLED를 true로 + 배포
 - [ ] 의사별 전화번호·네이버 예약 URL 실제 값 입력 (컬럼·관리자 입력폼은 준비 완료)
 - [ ] magom.io 도메인 재구입 + Resend 활성화
 - [ ] Google OAuth 추가 검토
 - [ ] Phase 4 — Q&A 게시판 / 커뮤니티 / 광고 슬롯
 
 # 개발 로그
+
+## 2026-08-19
+
+- AI 매칭 403 장애 원인 확인: Vercel AI Gateway가 무료 크레딧 사용자에게 Claude 모델 접근을 차단(정책 변경). 무료로 남은 모델은 매칭 품질·개인정보(중국 제공사 전송) 우려로 채택하지 않기로 결정.
+- AI 추천 일시 비활성 처리: /match는 안내 화면으로 전환(위기상담 안내 유지), 홈·메뉴·소개 페이지의 AI 진입점도 함께 정리. 에러 원문(내부 메타데이터)이 사용자 화면에 그대로 노출되던 문제도 수정.
 
 ## 2026-07-31
 
